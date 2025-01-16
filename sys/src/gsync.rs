@@ -1,6 +1,6 @@
-use status::NvAPI_Status;
-use handles::NvPhysicalGpuHandle;
-use handles::NvGSyncDeviceHandle;
+use crate::NvAPI_Status;
+use crate::handles::NvGSyncDeviceHandle;
+use crate::handles::NvPhysicalGpuHandle;
 
 nvstruct! {
     pub struct NV_GSYNC_CAPABILITIES_V1 {
@@ -128,7 +128,7 @@ nvenum! {
 }
 
 nvstruct! {
-    #[derive(Debug, Default)]
+    #[derive(Default)]
     pub struct NV_GSYNC_STATUS {
         pub version: u32,
         pub bIsSynced: u32,
