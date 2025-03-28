@@ -1,7 +1,7 @@
 use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetTachReadingFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pValue: *mut u32) -> NvAPI_Status;
 
     /// This API retrieves the fan speed tachometer reading for the specified physical GPU.
@@ -165,7 +165,7 @@ pub mod private {
 
     pub type NV_GPU_COOLER_SETTINGS = NV_GPU_COOLER_SETTINGS_V1;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetCoolerSettingsFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, coolerIndex: u32, pCoolerInfo: *mut NV_GPU_COOLER_SETTINGS) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -200,7 +200,7 @@ pub mod private {
 
     pub type NV_GPU_SETCOOLER_LEVEL = NV_GPU_SETCOOLER_LEVEL_V1;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_SetCoolerLevelsFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, coolerIndex: u32, pCoolerLevels: *const NV_GPU_SETCOOLER_LEVEL) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -218,7 +218,7 @@ pub mod private {
         pub unsafe fn NvAPI_GPU_SetCoolerLevels;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_RestoreCoolerSettingsFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, coolerIndex: *const u32, coolerCount: u32) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -258,7 +258,7 @@ pub mod private {
 
     pub type NV_GPU_COOLER_POLICY_TABLE = NV_GPU_COOLER_POLICY_TABLE_V1;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetCoolerPolicyTableFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, coolerIndex: u32, pCoolerTable: *mut NV_GPU_COOLER_POLICY_TABLE, count: *mut u32) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -266,7 +266,7 @@ pub mod private {
         pub unsafe fn NvAPI_GPU_GetCoolerPolicyTable;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_SetCoolerPolicyTableFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, coolerIndex: u32, pCoolerTable: *const NV_GPU_COOLER_POLICY_TABLE, count: u32) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -278,7 +278,7 @@ pub mod private {
         pub unsafe fn NvAPI_GPU_SetCoolerPolicyTable;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_RestoreCoolerPolicyTableFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, coolerIndex: *const u32, coolerCount: u32, policy: NV_COOLER_POLICY) -> NvAPI_Status;
 
         /// Undocumented function.

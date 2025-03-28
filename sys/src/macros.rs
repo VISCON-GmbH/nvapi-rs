@@ -1,3 +1,4 @@
+#[macro_export]
 macro_rules! nv_declare_handle {
     (
         $(#[$meta:meta])*
@@ -15,6 +16,7 @@ macro_rules! nv_declare_handle {
     };
 }
 
+#[macro_export]
 macro_rules! nvinherit {
     (
         $v2:ident($id:ident: $v1:ty)
@@ -35,6 +37,7 @@ macro_rules! nvinherit {
     };
 }
 
+#[macro_export]
 macro_rules! nvstruct {
     (
         $(#[$meta:meta])*
@@ -57,6 +60,7 @@ macro_rules! nvstruct {
     };
 }
 
+#[macro_export]
 macro_rules! nvenum {
     (
         $(#[$meta:meta])*
@@ -116,6 +120,7 @@ macro_rules! nvenum {
     };
 }
 
+#[macro_export]
 macro_rules! nvbits {
     (
         $(#[$meta:meta])*
@@ -161,6 +166,7 @@ macro_rules! nvbits {
     };
 }
 
+#[macro_export]
 macro_rules! nvenum_display {
     ($enum:ident => _) => {
         impl ::std::fmt::Display for $enum {
@@ -199,7 +205,8 @@ macro_rules! nvenum_display {
     };
 }
 
-macro_rules! nvapi {
+#[macro_export]
+macro_rules! nvapi_fn {
     (
         $(#[$meta:meta])*
         pub unsafe fn $fn:ident($($arg:ident: $arg_ty:ty),*) -> $ret:ty;
@@ -222,7 +229,7 @@ macro_rules! nvapi {
     ) => {
         pub type $name = extern "C" fn($($arg: $arg_ty),*) -> $ret;
 
-        nvapi! {
+        nvapi_fn! {
             $(#[$meta])*
             pub unsafe fn $fn($($arg: $arg_ty),*) -> $ret;
         }
@@ -230,6 +237,7 @@ macro_rules! nvapi {
 }
 
 // No `const fn` yet :(
+#[macro_export]
 macro_rules! nvversion {
     ($name:ident($struct:ident = $sz:expr, $ver:expr)) => {
         pub const $name: u32 = ($sz) as u32 | ($ver as u32) << 16;

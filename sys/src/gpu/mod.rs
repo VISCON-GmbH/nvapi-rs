@@ -34,7 +34,7 @@ pub mod power;
 
 pub mod display;
 
-nvapi! {
+nvapi_fn! {
     pub type EnumPhysicalGPUsFn = extern "C" fn(nvGPUHandle: *mut [NvPhysicalGpuHandle; types::NVAPI_MAX_PHYSICAL_GPUS], pGpuCount: *mut u32) -> NvAPI_Status;
 
     /// This function returns an array of physical GPU handles.
@@ -56,14 +56,14 @@ nvapi! {
     pub unsafe fn NvAPI_EnumPhysicalGPUs;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetFullNameFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, szName: *mut types::NvAPI_ShortString) -> NvAPI_Status;
 
     /// This function retrieves the full GPU name as an ASCII string - for example, "Quadro FX 1400".
     pub unsafe fn NvAPI_GPU_GetFullName;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetPhysicalFrameBufferSizeFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pSize: *mut u32) -> NvAPI_Status;
 
     /// This function returns the physical size of framebuffer in KB.  This does NOT include any
@@ -71,7 +71,7 @@ nvapi! {
     pub unsafe fn NvAPI_GPU_GetPhysicalFrameBufferSize;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetVbiosVersionStringFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, szBiosRevision: *mut types::NvAPI_ShortString) -> NvAPI_Status;
 
     /// This function returns the full video BIOS version string in the form of xx.xx.xx.xx.yy where
@@ -80,7 +80,7 @@ nvapi! {
     pub unsafe fn NvAPI_GPU_GetVbiosVersionString;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetPCIIdentifiersFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pDeviceId: *mut u32, pSubSystemId: *mut u32, pRevisionId: *mut u32, pExtDeviceId: *mut u32) -> NvAPI_Status;
 
     /// This function returns the PCI identifiers associated with this GPU.
@@ -100,14 +100,14 @@ nvenum_display! {
     SystemType => _
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetSystemTypeFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pSystemType: *mut NV_SYSTEM_TYPE) -> NvAPI_Status;
 
     /// This function identifies whether the GPU is a notebook GPU or a desktop GPU.
     pub unsafe fn NvAPI_GPU_GetSystemType;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetShaderSubPipeCountFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pCount: *mut u32) -> NvAPI_Status;
 
     /// This function retrieves the number of Shader SubPipes on the GPU
@@ -115,7 +115,7 @@ nvapi! {
     pub unsafe fn NvAPI_GPU_GetShaderSubPipeCount;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetGpuCoreCountFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pCount: *mut u32) -> NvAPI_Status;
 
     /// Retrieves the total number of cores defined for a GPU.
@@ -137,7 +137,7 @@ nvversion! { NV_BOARD_INFO_VER = NV_BOARD_INFO_VER1 }
 
 pub type NV_BOARD_INFO = NV_BOARD_INFO_V1;
 
-nvapi! {
+nvapi_fn! {
     /// This API Retrieves the Board information (a unique GPU Board Serial Number) stored in the InfoROM.
     pub unsafe fn NvAPI_GPU_GetBoardInfo(hPhysicalGpu: NvPhysicalGpuHandle, pBoardInfo: *mut NV_BOARD_INFO) -> NvAPI_Status;
 }
@@ -157,7 +157,7 @@ nvbits! {
     }
 }
 
-nvapi! {
+nvapi_fn! {
     /// This function retrieves reasons for the current performance decrease.
     pub unsafe fn NvAPI_GPU_GetPerfDecreaseInfo(hPhysicalGpu: NvPhysicalGpuHandle, pPerfDecrInfo: *mut NVAPI_GPU_PERF_DECREASE) -> NvAPI_Status;
 }
@@ -170,7 +170,7 @@ pub mod private {
 
     pub const NVAPI_MAX_PROCESSES: usize = 128;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetShaderPipeCountFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pCount: *mut u32) -> NvAPI_Status;
 
         pub unsafe fn NvAPI_GPU_GetShaderPipeCount;
@@ -197,7 +197,7 @@ pub mod private {
         RamType => _
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetRamTypeFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pMemType: *mut NV_GPU_RAM_TYPE) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -226,21 +226,21 @@ pub mod private {
         RamMaker => _
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetRamMakerFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pRamMaker: *mut NV_GPU_RAM_MAKER) -> NvAPI_Status;
 
         /// Undocumented function.
         pub unsafe fn NvAPI_GPU_GetRamMaker;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetRamBusWidthFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pRamBusWidth: *mut u32) -> NvAPI_Status;
 
         /// Undocumented function.
         pub unsafe fn NvAPI_GPU_GetRamBusWidth;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetRamBankCountFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pRamBankCount: *mut u32) -> NvAPI_Status;
 
         /// Undocumented function.
@@ -272,14 +272,14 @@ pub mod private {
         }
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetFoundryFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pFoundry: *mut NV_GPU_FOUNDRY) -> NvAPI_Status;
 
         /// Undocumented function.
         pub unsafe fn NvAPI_GPU_GetFoundry;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GPU_GetFBWidthAndLocation(hPhysicalGpu: NvPhysicalGpuHandle, pWidth: *mut u32, pLocation: *mut u32) -> NvAPI_Status;
     }
 
@@ -318,19 +318,19 @@ pub mod private {
         }
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GetGPUIDFromPhysicalGPU(hPhysicalGpu: NvPhysicalGpuHandle, gpuid: *mut u32) -> NvAPI_Status;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GPU_GetShortName(hPhysicalGpu: NvPhysicalGpuHandle, pName: *mut types::NvAPI_ShortString) -> NvAPI_Status;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GPU_GetPartitionCount(hPhysicalGpu: NvPhysicalGpuHandle, pPartitionCount: *mut u32) -> NvAPI_Status;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GetDriverModel(hPhysicalGpu: NvPhysicalGpuHandle, pDriverModel: *mut u32) -> NvAPI_Status;
     }
 }

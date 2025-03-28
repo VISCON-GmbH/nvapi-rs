@@ -79,7 +79,7 @@ nvstruct! {
     }
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetAllClockFrequenciesFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pClkFreqs: *mut NV_GPU_CLOCK_FREQUENCIES) -> NvAPI_Status;
 
     /// This function retrieves the NV_GPU_CLOCK_FREQUENCIES structure for the specified physical GPU.
@@ -126,7 +126,7 @@ pub mod private {
 
     pub type NV_USAGES_INFO = NV_USAGES_INFO_V1;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetUsagesFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pUsagesInfo: *mut NV_USAGES_INFO) -> NvAPI_Status;
 
         /// Undocumented function. Probably deprecated and replaced with NvAPI_GPU_GetDynamicPstatesInfoEx()
@@ -145,7 +145,7 @@ pub mod private {
 
     pub type NV_CLOCKS_INFO = NV_CLOCKS_INFO_V1;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_GetAllClocksFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pClocksInfo: *mut NV_CLOCKS_INFO) -> NvAPI_Status;
 
         /// Undocumented function. Probably deprecated and replaced with NvAPI_GPU_GetAllClockFrequencies()
@@ -193,12 +193,12 @@ pub mod private {
 
     pub type NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL = NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_V1;
 
-    nvapi! {
+    nvapi_fn! {
         /// Pascal only
         pub unsafe fn NvAPI_GPU_ClockClientClkVfPointsGetControl(hPhysicalGPU: NvPhysicalGpuHandle, pClockTable: *mut NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL) -> NvAPI_Status;
     }
 
-    nvapi! {
+    nvapi_fn! {
         /// Pascal only
         pub unsafe fn NvAPI_GPU_ClockClientClkVfPointsSetControl(hPhysicalGPU: NvPhysicalGpuHandle, pClockTable: *const NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL) -> NvAPI_Status;
     }
@@ -240,7 +240,7 @@ pub mod private {
 
     pub type NV_GPU_CLOCK_CLIENT_CLK_DOMAINS_INFO = NV_GPU_CLOCK_CLIENT_CLK_DOMAINS_INFO_V1;
 
-    nvapi! {
+    nvapi_fn! {
         /// Pascal only
         pub unsafe fn NvAPI_GPU_ClockClientClkDomainsGetInfo(hPhysicalGPU: NvPhysicalGpuHandle, pClockRanges: *mut NV_GPU_CLOCK_CLIENT_CLK_DOMAINS_INFO) -> NvAPI_Status;
     }
@@ -271,7 +271,7 @@ pub mod private {
 
     pub type NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO = NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO_V1;
 
-    nvapi! {
+    nvapi_fn! {
         /// Pascal only
         pub unsafe fn NvAPI_GPU_ClockClientClkVfPointsGetInfo(hPhysicalGPU: NvPhysicalGpuHandle, pClockMasks: *mut NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO) -> NvAPI_Status;
     }
@@ -309,12 +309,12 @@ pub mod private {
     nvversion! { NV_GPU_PERF_CLIENT_LIMITS_VER_2(NV_GPU_PERF_CLIENT_LIMITS_V2 = 0x30c, 2) }
     nvversion! { NV_GPU_PERF_CLIENT_LIMITS_VER = NV_GPU_PERF_CLIENT_LIMITS_VER_2 }
 
-    nvapi! {
+    nvapi_fn! {
         /// Pascal only
         pub unsafe fn NvAPI_GPU_PerfClientLimitsGetStatus(hPhysicalGPU: NvPhysicalGpuHandle, pClockLocks: *mut NV_GPU_PERF_CLIENT_LIMITS) -> NvAPI_Status;
     }
 
-    nvapi! {
+    nvapi_fn! {
         /// Pascal only
         pub unsafe fn NvAPI_GPU_PerfClientLimitsSetStatus(hPhysicalGPU: NvPhysicalGpuHandle, pClockLocks: *const NV_GPU_PERF_CLIENT_LIMITS) -> NvAPI_Status;
     }

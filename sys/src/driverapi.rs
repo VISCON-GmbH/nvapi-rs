@@ -2,7 +2,7 @@ use crate::status::NvAPI_Status;
 use crate::types::NvAPI_ShortString;
 use crate::handles;
 
-nvapi! {
+nvapi_fn! {
     pub type SYS_GetDriverAndBranchVersionFn = extern "C" fn(pDriverVersion: *mut u32, szBuildBranchString: *mut NvAPI_ShortString) -> NvAPI_Status;
 
     /// This API returns display driver version and driver-branch string.
@@ -54,7 +54,7 @@ nvversion! { NV_DISPLAY_DRIVER_MEMORY_INFO_VER_2(NV_DISPLAY_DRIVER_MEMORY_INFO_V
 nvversion! { NV_DISPLAY_DRIVER_MEMORY_INFO_VER_3(NV_DISPLAY_DRIVER_MEMORY_INFO_V3 = 4 * 8, 3) }
 nvversion! { NV_DISPLAY_DRIVER_MEMORY_INFO_VER = NV_DISPLAY_DRIVER_MEMORY_INFO_VER_3 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetMemoryInfoFn = extern "C" fn(hPhysicalGpu: handles::NvPhysicalGpuHandle, pMemoryInfo: *mut NV_DISPLAY_DRIVER_MEMORY_INFO) -> NvAPI_Status;
 
     /// This function retrieves the available driver memory footprint for the specified GPU.
@@ -67,7 +67,7 @@ pub mod private {
     use crate::status::NvAPI_Status;
     use crate::handles;
 
-    nvapi! {
+    nvapi_fn! {
         /// This has a different offset than the NvAPI_GPU_GetMemoryInfo function despite both returning the same struct
         pub unsafe fn NvAPI_GetDisplayDriverMemoryInfo(hPhysicalGpu: handles::NvPhysicalGpuHandle, pMemoryInfo: *mut super::NV_DISPLAY_DRIVER_MEMORY_INFO) -> NvAPI_Status;
     }

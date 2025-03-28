@@ -156,7 +156,7 @@ nvversion! { NV_I2C_INFO_VER2(NV_I2C_INFO_V2 = NV_I2C_INFO_V2_SIZE, 2) }
 nvversion! { NV_I2C_INFO_VER3(NV_I2C_INFO_V3 = NV_I2C_INFO_V3_SIZE, 3) }
 nvversion! { NV_I2C_INFO_VER = NV_I2C_INFO_VER3 }
 
-nvapi! {
+nvapi_fn! {
     pub type NvAPI_I2CReadFn = extern "C" fn(hPhysicalGpu: NvPhysicalGpuHandle, pI2cInfo: *mut NV_I2C_INFO) -> NvAPI_Status;
 
     /// This function reads the data buffer from the I2C port.
@@ -181,7 +181,7 @@ nvapi! {
     pub unsafe fn NvAPI_I2CRead;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type NvAPI_I2CWriteFn = extern "C" fn(hPhysicalGpu: NvPhysicalGpuHandle, pI2cInfo: *mut NV_I2C_INFO) -> NvAPI_Status;
 
     /// This function writes the data buffer to the I2C port.
@@ -260,14 +260,14 @@ pub mod private {
     nvversion! { NV_I2C_INFO_EX_VER3(NV_I2C_INFO_EX_V3 = NV_I2C_INFO_EX_V3_SIZE, 3) }
     nvversion! { NV_I2C_INFO_EX_VER = NV_I2C_INFO_EX_VER3 }
 
-    nvapi! {
+    nvapi_fn! {
         pub type NvAPI_I2CReadExFn = extern "C" fn(hPhysicalGpu: NvPhysicalGpuHandle, pI2cInfo: *mut NV_I2C_INFO_EX, pData: *mut u32) -> NvAPI_Status;
 
         /// Undocumented function. `pData` is often `{ 1, 0 }`?
         pub unsafe fn NvAPI_I2CReadEx;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub type NvAPI_I2CWriteExFn = extern "C" fn(hPhysicalGpu: NvPhysicalGpuHandle, pI2cInfo: *mut NV_I2C_INFO_EX, pData: *mut u32) -> NvAPI_Status;
 
         /// Undocumented function. `pData` is often `{ 1, 0 }`?
