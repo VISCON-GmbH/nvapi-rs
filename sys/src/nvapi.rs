@@ -67,7 +67,7 @@ pub(crate) fn query_interface(id: u32, cache: &AtomicUsize) -> crate::Result<usi
     }
 }
 
-nvapi! {
+nvapi_fn! {
     pub type InitializeFn = extern "C" fn() -> NvAPI_Status;
 
     /// This function initializes the NvAPI library (if not already initialized) but always increments the ref-counter.
@@ -75,7 +75,7 @@ nvapi! {
     pub unsafe fn NvAPI_Initialize;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type UnloadFn = extern "C" fn() -> NvAPI_Status;
 
     /// Decrements the ref-counter and when it reaches ZERO, unloads NVAPI library.
@@ -99,14 +99,14 @@ nvapi! {
     pub unsafe fn NvAPI_Unload;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GetErrorMessageFn = extern "C" fn(nr: NvAPI_Status, szDesc: *mut types::NvAPI_ShortString) -> NvAPI_Status;
 
     /// This function converts an NvAPI error code into a null terminated string.
     pub unsafe fn NvAPI_GetErrorMessage;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GetInterfaceVersionStringFn = extern "C" fn(szDesc: *mut types::NvAPI_ShortString) -> NvAPI_Status;
 
     /// This function returns a string describing the version of the NvAPI library.

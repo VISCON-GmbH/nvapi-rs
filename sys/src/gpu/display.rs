@@ -84,7 +84,7 @@ nvversion! { NV_GPU_DISPLAYIDS_VER1(NV_GPU_DISPLAYIDS = 4 * 4, 1) }
 nvversion! { NV_GPU_DISPLAYIDS_VER2(NV_GPU_DISPLAYIDS = 4 * 4, 3) }
 nvversion! { NV_GPU_DISPLAYIDS_VER = NV_GPU_DISPLAYIDS_VER2 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetConnectedDisplayIds = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pDisplayIds: *mut NV_GPU_DISPLAYIDS, pDisplayIdCount: *mut u32, flags: NV_GPU_CONNECTED_IDS_FLAG) -> NvAPI_Status;
 
     /// Due to space limitation NvAPI_GPU_GetConnectedOutputs can return maximum 32 devices, but
@@ -109,7 +109,7 @@ nvapi! {
     pub unsafe fn NvAPI_GPU_GetConnectedDisplayIds;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetAllDisplayIds = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pDisplayIds: *mut NV_GPU_DISPLAYIDS, pDisplayIdCount: *mut u32) -> NvAPI_Status;
 
     /// This API returns display IDs for all possible outputs on the GPU.

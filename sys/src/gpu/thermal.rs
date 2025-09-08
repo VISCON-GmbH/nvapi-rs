@@ -99,7 +99,7 @@ nvversion! { NV_GPU_THERMAL_SETTINGS_VER_1(NV_GPU_THERMAL_SETTINGS_V1 = NV_GPU_T
 nvversion! { NV_GPU_THERMAL_SETTINGS_VER_2(NV_GPU_THERMAL_SETTINGS_V2 = NV_GPU_THERMAL_SETTINGS_V1_SIZE, 2) }
 nvversion! { NV_GPU_THERMAL_SETTINGS_VER = NV_GPU_THERMAL_SETTINGS_VER_2 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetThermalSettingsFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, sensorIndex: u32, pThermalSettings: *mut NV_GPU_THERMAL_SETTINGS) -> NvAPI_Status;
 
     /// This function retrieves the thermal information of all thermal sensors or specific thermal sensor associated with the selected GPU.
@@ -145,7 +145,7 @@ pub mod private {
     nvversion! { NV_GPU_THERMAL_INFO_VER_2(NV_GPU_THERMAL_INFO_V2 = NV_GPU_THERMAL_INFO_V2_SIZE, 2) }
     nvversion! { NV_GPU_THERMAL_INFO_VER = NV_GPU_THERMAL_INFO_VER_2 }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GPU_ClientThermalPoliciesGetInfo(hPhysicalGPU: NvPhysicalGpuHandle, pThermalInfo: *mut NV_GPU_THERMAL_INFO) -> NvAPI_Status;
     }
 
@@ -174,11 +174,11 @@ pub mod private {
     nvversion! { NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_VER_2(NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_V2 = NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_V2_SIZE, 2) }
     nvversion! { NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_VER = NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_VER_2 }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GPU_ClientThermalPoliciesGetStatus(hPhysicalGPU: NvPhysicalGpuHandle, pThermalLimit: *mut NV_GPU_CLIENT_THERMAL_POLICIES_STATUS) -> NvAPI_Status;
     }
 
-    nvapi! {
+    nvapi_fn! {
         pub unsafe fn NvAPI_GPU_ClientThermalPoliciesSetStatus(hPhysicalGPU: NvPhysicalGpuHandle, pThermalLimit: *const NV_GPU_CLIENT_THERMAL_POLICIES_STATUS) -> NvAPI_Status;
     }
 }

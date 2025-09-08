@@ -69,7 +69,7 @@ impl UtilizationDomain {
 
 nvversion! { NV_GPU_DYNAMIC_PSTATES_INFO_EX_VER(NV_GPU_DYNAMIC_PSTATES_INFO_EX = 4 * 2 + (4 * 2) * NVAPI_MAX_GPU_UTILIZATIONS, 1) }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetDynamicPstatesInfoExFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pDynamicPstatesInfoEx: *mut NV_GPU_DYNAMIC_PSTATES_INFO_EX) -> NvAPI_Status;
 
     /// This API retrieves the NV_GPU_DYNAMIC_PSTATES_INFO_EX structure for the specified physical GPU.
@@ -112,7 +112,7 @@ nvenum_display! {
     PstateId => _
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetCurrentPstateFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pCurrentPstate: *mut NV_GPU_PERF_PSTATE_ID) -> NvAPI_Status;
 
     /// This function retrieves the current performance state (P-State).
@@ -296,7 +296,7 @@ nvversion! { NV_GPU_PERF_PSTATES20_INFO_VER2(NV_GPU_PERF_PSTATES20_INFO_V2 = NV_
 nvversion! { NV_GPU_PERF_PSTATES20_INFO_VER3(NV_GPU_PERF_PSTATES20_INFO_V2 = NV_GPU_PERF_PSTATES20_INFO_V2_SIZE, 3) }
 nvversion! { NV_GPU_PERF_PSTATES20_INFO_VER = NV_GPU_PERF_PSTATES20_INFO_VER3 }
 
-nvapi! {
+nvapi_fn! {
     pub type GPU_GetPstates20Fn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pPstatesInfo: *mut NV_GPU_PERF_PSTATES20_INFO) -> NvAPI_Status;
 
     /// This API retrieves all performance states (P-States) 2.0 information.
@@ -318,7 +318,7 @@ nvapi! {
 pub mod private {
     use crate::status::NvAPI_Status;
 
-    nvapi! {
+    nvapi_fn! {
         pub type GPU_SetPstates20Fn = extern "C" fn(hPhysicalGPU: super::NvPhysicalGpuHandle, pPstatesInfo: *const super::NV_GPU_PERF_PSTATES20_INFO) -> NvAPI_Status;
 
         /// Undocumented private API

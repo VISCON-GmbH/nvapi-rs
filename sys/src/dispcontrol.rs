@@ -2,7 +2,7 @@ use std::os::raw::c_char;
 use crate::status::NvAPI_Status;
 use crate::handles;
 
-nvapi! {
+nvapi_fn! {
     pub type EnumNvidiaDisplayHandleFn = extern "C" fn(thisEnum: u32, pNvDispHandle: *mut handles::NvDisplayHandle) -> NvAPI_Status;
 
     /// This function returns the handle of the NVIDIA display specified by the enum
@@ -14,7 +14,7 @@ nvapi! {
     pub unsafe fn NvAPI_EnumNvidiaDisplayHandle;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type EnumNvidiaUnAttachedDisplayHandleFn = extern "C" fn(thisEnum: u32, pNvUnAttachedDispHandle: *mut handles::NvUnAttachedDisplayHandle) -> NvAPI_Status;
 
     /// This function returns the handle of the NVIDIA unattached display specified by the enum
@@ -26,7 +26,7 @@ nvapi! {
     pub unsafe fn NvAPI_EnumNvidiaUnAttachedDisplayHandle;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GetAssociatedNvidiaDisplayHandleFn = extern "C" fn(szDisplayName: *const c_char, pNvDispHandle: *mut handles::NvDisplayHandle) -> NvAPI_Status;
 
     /// This function returns the handle of the NVIDIA display that is associated
@@ -34,7 +34,7 @@ nvapi! {
     pub unsafe fn NvAPI_GetAssociatedNvidiaDisplayHandle;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type DISP_GetAssociatedUnAttachedNvidiaDisplayHandleFn = extern "C" fn(szDisplayName: *const c_char, pNvUnAttachedDispHandle: *mut handles::NvDisplayHandle) -> NvAPI_Status;
 
     /// This function returns the handle of an unattached NVIDIA display that is
