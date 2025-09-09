@@ -14,7 +14,7 @@
 
 use nvapi::GSyncDevice;
 
-fn maiWn() -> Result<(), nvapi::Status> {
+fn main() -> Result<(), nvapi::Status> {
     let devices = GSyncDevice::get_sync_devices()?;
     if devices.is_empty() {
         println!("No G-SYNC devices found");

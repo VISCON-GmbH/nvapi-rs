@@ -147,8 +147,8 @@ nvstruct! {
     }
 }
 
-// TODO: this most likely wont work and needs to be updated.
-nvversion! { NV_GSYNC_STATUS_VER(NV_GSYNC_STATUS = 0, 1) /* temp */}
+const NV_GSYNC_STATUS_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATUS>();
+nvversion! { NV_GSYNC_STATUS_VER(NV_GSYNC_STATUS = NV_GSYNC_STATUS_SIZE, 1) }
 
 nvenum! {
     pub enum NVAPI_GSYNC_RJ45_IO / RJ45_IO {
