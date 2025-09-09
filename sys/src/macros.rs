@@ -1,3 +1,8 @@
+/// Declares a new NVAPI handle type.
+///
+/// Handles are opaque pointers, so this creates a new struct that is a transparent
+/// wrapper around a `*const c_void`. It also implements `Default` for the handle,
+/// which initializes it to a null pointer.
 #[macro_export]
 macro_rules! nv_declare_handle {
     (
@@ -18,6 +23,12 @@ macro_rules! nv_declare_handle {
     };
 }
 
+
+/// Implements `Deref` and `DerefMut` for a struct, allowing it to "inherit"
+/// from a field.
+///
+/// This is useful for creating versioned structs where a newer version of a
+/// struct contains an older version as a field.
 #[macro_export]
 macro_rules! nvinherit {
     (
@@ -39,6 +50,11 @@ macro_rules! nvinherit {
     };
 }
 
+/// Creates a C-compatible struct.
+///
+/// This macro adds `#[repr(C)]` and `#[derive(Copy, Clone, Debug)]` to the
+/// struct definition, and also provides a `zeroed()` constructor that returns
+/// a struct instance with all fields initialized to zero.
 #[macro_export]
 macro_rules! nvstruct {
     (
@@ -62,6 +78,12 @@ macro_rules! nvstruct {
     };
 }
 
+/// Creates a C-style enum with a corresponding type-safe Rust enum.
+///
+/// It defines a type alias for the C-style enum (e.g., `pub type MyEnum = c_int;`)
+/// and constants for each variant. It then creates a Rust `enum` with the same
+/// variants, and provides methods for converting between the raw integer value
+/// and the Rust enum, as well as an iterator over the enum's values.
 #[macro_export]
 macro_rules! nvenum {
     (
@@ -122,6 +144,12 @@ macro_rules! nvenum {
     };
 }
 
+
+/// Creates a bitflags enum using the `bitflags` crate.
+///
+/// This macro defines a `u32` type alias for the bitflags, and then uses the
+/// `bitflags!` macro to generate a struct that represents a set of bit flags.
+/// It also implements an `Iterator` to iterate over the set flags.
 #[macro_export]
 macro_rules! nvbits {
     (
@@ -168,7 +196,12 @@ macro_rules! nvbits {
     };
 }
 
-#[macro_export]
+
+/// Implements the `Display` trait for an enum, allowing it to be formatted as a string.
+///
+/// This macro has two forms:
+/// - `nvenum_display!(MyEnum => _)`: Implements `Display` by forwarding to the `Debug` implementation.
+/// - `nvenum_display!(MyEnum => { Name = "Value", ... })`: Implements `Display` with a custom format string for each variant.
 macro_rules! nvenum_display {
     ($enum:ident => _) => {
         impl ::std::fmt::Display for $enum {
@@ -207,6 +240,15 @@ macro_rules! nvenum_display {
     };
 }
 
+
+/// Declares and calls an NVAPI function.
+///
+/// This macro simplifies the process of calling NVAPI functions. It takes a
+/// function signature, looks up the function pointer at runtime using
+/// `nvapi::query_interface`, caches the pointer in a static atomic variable,
+/// and then calls the function.
+///
+/// It also has a form for defining a function pointer type alongside the function.
 #[macro_export]
 macro_rules! nvapi_fn {
     (
@@ -238,6 +280,12 @@ macro_rules! nvapi_fn {
     };
 }
 
+
+/// Creates a version number for an NVAPI struct.
+///
+/// NVAPI structs are often versioned. This macro packs the struct's size and
+/// a version number into a `u32` value, which is then passed to NVAPI functions.
+/// It also includes a compile-time test to assert that the struct size is correct.
 // No `const fn` yet :(
 #[macro_export]
 macro_rules! nvversion {
