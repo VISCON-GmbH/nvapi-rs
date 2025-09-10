@@ -84,7 +84,7 @@ impl GSyncDevice {
     /// println!("status: {:?}", status);
     /// # Ok::<_, nvapi::Status>(())
     /// ```
-    pub fn get_sync_status(&self, gpu: PhysicalGpu) -> crate::Result<gsync::NV_GSYNC_STATUS> {
+    pub fn get_sync_status(&self, gpu: &PhysicalGpu) -> crate::Result<gsync::NV_GSYNC_STATUS> {
         let mut status = gsync::NV_GSYNC_STATUS::default();
         status.version = gsync::NV_GSYNC_STATUS_VER;
         match unsafe {
@@ -118,6 +118,28 @@ impl GSyncDevice {
         }
     }
 
+    /// Queries extended status parameters (V2) of this G-SYNC device.
+    ///
+    /// This opts into the larger NV_GSYNC_STATUS_PARAMS_V2 struct. Some drivers
+    /// only support V1 and will return `Status::IncompatibleStructVersion`.
+    ///
+    /// Wraps `NvAPI_GSync_GetStatusParameters` with a V2 buffer.
+    pub fn get_status_parameters_v2(&self) -> crate::Result<gsync::NV_GSYNC_STATUS_PARAMS_V2> {
+        trace!("gsync.get_status_parameters_v2()");
+        let mut params2 = gsync::NV_GSYNC_STATUS_PARAMS_V2::zeroed();
+        params2.version = gsync::NV_GSYNC_STATUS_PARAMS_VER_2;
+        let ret = unsafe {
+            // Call the same NVAPI entry point but pass a V2 buffer by casting to the
+            // aliased parameter type expected by our FFI (currently V1). NVAPI uses
+            // the version field to determine the actual layout.
+            gsync::NvAPI_GSync_GetStatusParameters(
+                *self.handle(),
+                &mut params2 as *mut _ as *mut gsync::NV_GSYNC_STATUS_PARAMS,
+            )
+        };
+        status_result(ret).map(|_| params2)
+    }
+
     /// Queries current control parameters of this G-SYNC device.
     ///
     /// Wraps `NvAPI_GSync_GetControlParameters`.
@@ -127,6 +149,41 @@ impl GSyncDevice {
         params.version = gsync::NV_GSYNC_CONTROL_PARAMS_VER;
         match unsafe { gsync::NvAPI_GSync_GetControlParameters(*self.handle(), &mut params) } {
             ret => status_result(ret).map(|_| params),
+        }
+    }
+
+    /// Sets control parameters on this G-SYNC device.
+    ///
+    /// The provided buffer will be updated by NVAPI with the applied values
+    /// (e.g., adjusted delays). Ensure `version` is set to `NV_GSYNC_CONTROL_PARAMS_VER`.
+    pub fn set_control_parameters(
+        &self,
+        params: &mut gsync::NV_GSYNC_CONTROL_PARAMS,
+    ) -> crate::Result<gsync::NV_GSYNC_CONTROL_PARAMS> {
+        trace!("gsync.set_control_parameters()");
+        if params.version == 0 {
+            params.version = gsync::NV_GSYNC_CONTROL_PARAMS_VER;
+        }
+        match unsafe { gsync::NvAPI_GSync_SetControlParameters(*self.handle(), params) } {
+            ret => status_result(ret).map(|_| *params),
+        }
+    }
+
+    /// Adjusts skew or startup delay to the closest possible values.
+    ///
+    /// Returns the delay in unit steps if provided by the driver.
+    pub fn adjust_sync_delay(
+        &self,
+        delay_type: gsync::NVAPI_GSYNC_DELAY_TYPE,
+        delay: &mut gsync::NV_GSYNC_DELAY,
+    ) -> crate::Result<Option<u32>> {
+        trace!("gsync.adjust_sync_delay({:?})", delay_type);
+        let mut steps: u32 = 0;
+        let steps_ptr: *mut u32 = &mut steps;
+        match unsafe {
+            gsync::NvAPI_GSync_AdjustSyncDelay(*self.handle(), delay_type, delay, steps_ptr)
+        } {
+            ret => status_result(ret).map(|_| Some(steps)),
         }
     }
 

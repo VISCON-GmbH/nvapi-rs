@@ -28,7 +28,7 @@ fn main() -> Result<(), nvapi::Status> {
             let name = gpu.full_name().unwrap_or_else(|_| "<name unavailable>".to_string());
             println!("  GPU #{}: {}", gi, name);
 
-            match dev.get_sync_status(gpu) {
+            match dev.get_sync_status(&gpu) {
                 Ok(stat) => println!(
                     "    synced: {}, stereo: {}, signal: {}",
                     stat.bIsSynced != 0,

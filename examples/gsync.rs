@@ -21,13 +21,24 @@ fn main() -> Result<(), nvapi::Status> {
         println!("G-SYNC device #{}", i);
 
         // Capabilities and status/control params
-        println!("  capabilities: {}", dev.query_capabilities().is_ok());
-        println!("  status params: {}", dev.get_status_parameters().is_ok());
-        println!("  control params: {}", dev.get_control_parameters().is_ok());
+        println!("  capabilities: {:#?}", dev.query_capabilities());
+        println!("  status params: {:#?}", dev.get_status_parameters());
+        println!("  control params: {:#?}", dev.get_control_parameters());
+        println!("  topology: {:#?}", dev.get_topology());
 
         // Topology counts
         if let Ok((gpus, displays)) = dev.get_topology() {
             println!("  topology: {} gpus, {} displays", gpus.len(), displays.len());
+
+            for gpu in dev.iter_physical_gpus()?{
+                dev.get_sync_status(&gpu).map(|status| {
+                    println!("    gpu: {:#?}", gpu);
+                    println!("    status: {:#?}", status);
+                }).unwrap_or_else(|e| {
+                    println!("    gpu: {:#?}", gpu);
+                    println!("    status: error: {}", e);
+                });
+            }
         }
     }
 

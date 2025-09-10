@@ -42,9 +42,9 @@ nvstruct! {
     pub struct NV_GSYNC_DISPLAY {
     pub version: u32,
         displayId: u32,
-        isMasterable: u32,
-        reserved: u32,
-         syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
+    // C bitfield: isMasterable:1, reserved:31 — represented as a single u32
+    isMasterable: u32,
+    syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
     }
 }
 
@@ -67,8 +67,8 @@ nvstruct! {
     pub hPhysicalGpu: NvPhysicalGpuHandle,
         connector: NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR,
     pub hProxyPhysicalGpu: NvPhysicalGpuHandle,
-        isSynced: u32,
-        reserved: u32,
+    // C bitfield: isSynced:1, reserved:31 — represented as a single u32
+    isSynced: u32,
     }
 }
 
@@ -185,11 +185,15 @@ nvinherit! { NV_GSYNC_STATUS_PARAMS_V2(v1: NV_GSYNC_STATUS_PARAMS_V1) }
 
 const NV_GSYNC_STATUS_PARAMS_V2_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATUS_PARAMS_V2>();
 
-pub type NV_GSYNC_STATUS_PARAMS = NV_GSYNC_STATUS_PARAMS_V2;
+// Default to V1 for broader compatibility. Some cards/drivers/sync boards return
+// NVAPI_INCOMPATIBLE_STRUCT_VERSION for V2.
+// TODO: Tested with 2x Quadro P4000 and Quadro Sync 2 with older Firmware (2.02). 
+// Investigate if newer GPUs and Q Sync firmware works with either version.
+pub type NV_GSYNC_STATUS_PARAMS = NV_GSYNC_STATUS_PARAMS_V1;
 
 nvversion! { NV_GSYNC_STATUS_PARAMS_VER_1(NV_GSYNC_STATUS_PARAMS_V1 = NV_GSYNC_STATUS_PARAMS_V1_SIZE, 1) }
 nvversion! { NV_GSYNC_STATUS_PARAMS_VER_2(NV_GSYNC_STATUS_PARAMS_V2 = NV_GSYNC_STATUS_PARAMS_V2_SIZE, 2) }
-nvversion! { NV_GSYNC_STATUS_PARAMS_VER = NV_GSYNC_STATUS_PARAMS_VER_2 }
+nvversion! { NV_GSYNC_STATUS_PARAMS_VER = NV_GSYNC_STATUS_PARAMS_VER_1 }
 
 nvapi_fn! {
     pub type GSync_EnumSyncDevicesFn = extern "C" fn(nvGSyncHandles: *mut [NvGSyncDeviceHandle; super::types::NVAPI_MAX_GSYNC_DEVICES], gsyncCount: *mut u32) -> NvAPI_Status;
@@ -207,7 +211,7 @@ nvapi_fn! {
 }
 
 nvapi_fn! {
-    pub type GSync_SetSyncStateSettingsFn = extern "C" fn(gsyncDisplayCount: u32, pGsyncDisplays: NV_GSYNC_DISPLAY, flags: u32) -> NvAPI_Status;
+    pub type GSync_SetSyncStateSettingsFn = extern "C" fn(gsyncDisplayCount: u32, pGsyncDisplays: *const NV_GSYNC_DISPLAY, flags: u32) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_SetSyncStateSettings;
 }
 
