@@ -41,10 +41,10 @@ nvenum! {
 nvstruct! {
     pub struct NV_GSYNC_DISPLAY {
     pub version: u32,
-        displayId: u32,
+    pub displayId: u32,
     // C bitfield: isMasterable:1, reserved:31 — represented as a single u32
-    isMasterable: u32,
-    syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
+    pub isMasterable: u32,
+    pub syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
     }
 }
 

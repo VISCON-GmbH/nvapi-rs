@@ -13,6 +13,10 @@ macro_rules! nv_declare_handle {
         #[derive(Copy, Clone, Debug)]
         #[allow(dead_code)]
         #[repr(transparent)]
+        ///##### NVAPI handle
+        /// This is a transparent wrapper around a raw c_void pointer.
+        /// Implements `Copy`, `Clone`, `Debug`, and `Default`. Default will result in a null pointer / handle.
+        /// See more details: [nvapi::handles](crate::handles)
         pub struct $name(*const ::std::os::raw::c_void);
 
         impl Default for $name {
@@ -20,9 +24,13 @@ macro_rules! nv_declare_handle {
                 $name(::std::ptr::null())
             }
         }
+        impl $name {
+            /// Returns true if the handle is null (invalid).
+            #[inline]
+            pub fn is_null(&self) -> bool { self.0.is_null() }
+        }
     };
 }
-
 
 /// Implements `Deref` and `DerefMut` for a struct, allowing it to "inherit"
 /// from a field.
@@ -144,7 +152,6 @@ macro_rules! nvenum {
     };
 }
 
-
 /// Creates a bitflags enum using the `bitflags` crate.
 ///
 /// This macro defines a `u32` type alias for the bitflags, and then uses the
@@ -196,7 +203,6 @@ macro_rules! nvbits {
     };
 }
 
-
 /// Implements the `Display` trait for an enum, allowing it to be formatted as a string.
 ///
 /// This macro has two forms:
@@ -240,7 +246,6 @@ macro_rules! nvenum_display {
     };
 }
 
-
 /// Declares and calls an NVAPI function.
 ///
 /// This macro simplifies the process of calling NVAPI functions. It takes a
@@ -280,7 +285,6 @@ macro_rules! nvapi_fn {
     };
 }
 
-
 /// Creates a version number for an NVAPI struct.
 ///
 /// NVAPI structs are often versioned. This macro packs the struct's size and
@@ -298,7 +302,10 @@ macro_rules! nvversion {
         mod $name {
             #[test]
             fn $name() {
-                assert_eq!(crate::types::GET_NVAPI_SIZE(super::$name), ::std::mem::size_of::<super::$struct>());
+                assert_eq!(
+                    crate::types::GET_NVAPI_SIZE(super::$name),
+                    ::std::mem::size_of::<super::$struct>()
+                );
             }
         }
     };
@@ -309,4 +316,3 @@ macro_rules! nvversion {
         }*/
     };
 }
-

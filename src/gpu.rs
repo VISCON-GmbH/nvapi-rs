@@ -8,6 +8,7 @@ use crate::types::{
     RawConversion,
 };
 use log::trace;
+use nvapi_sys::gsync::NV_GSYNC_GPU;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use std::{fmt, ptr};
@@ -948,6 +949,21 @@ impl PhysicalGpu {
         }
 
         sys::status_result(unsafe { i2c::NvAPI_I2CWrite(self.0, &mut data) }).map(drop)
+    }
+}
+
+/// Converts a NV_GSYNC_GPU into a PhysicalGpu wrapper.
+///
+/// Prefer the `hPhysicalGpu` handle; falls back to `hProxyPhysicalGpu` if the
+/// physical one is null.
+impl From<&NV_GSYNC_GPU> for PhysicalGpu {
+    fn from(value: &NV_GSYNC_GPU) -> Self {
+        let primary = value.hPhysicalGpu;
+        let handle = match primary.is_null() {
+            false => primary,
+            true => value.hProxyPhysicalGpu,
+        };
+        PhysicalGpu(handle)
     }
 }
 
