@@ -295,6 +295,26 @@ impl GSyncDevice {
     //     status_result(ret).map(|_| params2)
     // }
 
+    /// Re-applies the current sync state using a displays slice from get_topology().
+    /// Useful for a no-op validation of NvAPI_GSync_SetSyncStateSettings or resyncing after reboots, 
+    /// as that sometimes clears the saved sync state.
+    pub fn set_sync_state_settings_from_topology(
+        &self,
+        displays: &[gsync::NV_GSYNC_DISPLAY],
+        flags: u32,
+    ) -> crate::Result<()> {
+        // Build minimal entries (id + state); driver-owned fields are left untouched.
+        let mut buf: Vec<gsync::NV_GSYNC_DISPLAY> = Vec::with_capacity(displays.len());
+        for d in displays {
+            let mut e = gsync::NV_GSYNC_DISPLAY::zeroed();
+            e.version = gsync::NV_GSYNC_DISPLAY_VER;
+            e.displayId = d.displayId;
+            e.syncState = d.syncState;
+            buf.push(e);
+        }
+        self.set_sync_state_settings_raw(&mut buf, flags)
+    }
+
     /// Retrieves the physical GPUs connected to this G-SYNC device.
     pub fn get_physical_gpus(&self) -> crate::Result<Vec<PhysicalGpu>> {
         let (gpus, _displays) = self.get_topology()?;
