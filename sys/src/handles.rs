@@ -10,10 +10,6 @@ nv_declare_handle! {
     NvPhysicalGpuHandle
 }
 
-impl NvPhysicalGpuHandle {
-    #[inline]
-    pub fn is_null(&self) -> bool { self.0.is_null() }
-}
 
 nv_declare_handle! {
     /// Display Device driven by NVIDIA GPU(s) (an attached display)
