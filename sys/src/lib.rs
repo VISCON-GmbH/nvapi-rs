@@ -9,6 +9,7 @@ pub mod nvapi;
 pub mod status;
 pub mod types;
 pub mod gsync;
+pub mod mosaic;
 
 /// NVAPI Handles - These handles are retrieved from various calls and passed in
 /// to others in NvAPI These are meant to be opaque types. Do not assume they
