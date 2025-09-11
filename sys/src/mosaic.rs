@@ -34,7 +34,11 @@ pub const NV_MOSAIC_TOPO_NUM_EYES: u32 = 2;
 
 pub const NV_MOSAIC_MAX_TOPO_PER_TOPO_GROUP: usize = 2;
 // Alias: NV_MOSAIC_MAX_DISPLAYS is used by some grid topo structs; map to NVAPI_MAX_DISPLAYS
-pub const NV_MOSAIC_MAX_DISPLAYS: usize = NVAPI_MAX_DISPLAYS;
+// IMPORTANT: For Mosaic grid topology structs, NV_MOSAIC_MAX_DISPLAYS is 64 in NVAPI.
+// Do NOT alias to NVAPI_MAX_DISPLAYS (which can be larger, e.g. 128), because
+// the struct version encodes the size and must match the driver's expected size.
+// Yes I made this mistake and that cost my sanity for a while. Very amusing entry in git history atleast, lol.
+pub const NV_MOSAIC_MAX_DISPLAYS: usize = 64;
 
 // Grid Topology flags stored in NV_MOSAIC_GRID_TOPO_V1/V2.gridFlags (C bitfields)
 pub const NV_MOSAIC_GRID_TOPO_FLAG_APPLY_WITH_BEZEL_CORRECT: u32 = 1 << 0;

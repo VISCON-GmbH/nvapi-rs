@@ -277,8 +277,6 @@ impl Mosaic {
     /// X and Y directions. These limits depend on the specific topology and the
     /// resolution/refresh rate of the display settings.
     ///
-    /// Note: This function may fail with `IncompatibleStructVersion` on some 
-    /// driver/hardware combinations.
     ///
     /// # Arguments
     /// * `brief` - Topology brief to check limits for
