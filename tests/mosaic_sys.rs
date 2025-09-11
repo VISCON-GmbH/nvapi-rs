@@ -479,16 +479,20 @@ fn test_mosaic_enum_display_grids_c_compat() -> Result<(), String> {
             }
             Err(e) => return Err(format!("{:?}", e))
         }
+        
+        // Well I'm not proud of the following, but I already lost my sanity why the damn StructVersion error keeps happening, so I don't care anymore.
+        // Means: Raw dogging it with byte buffers and manually setting the version fields. In Rust. Insanity.
+        // This shit still doesn't work. Great.
 
         // Try using raw buffer with C struct size calculations
-        // Based on C definitions:
+        // Based on C definitions(taken from nvapi.h release 570):
         // - V1 display: 20 bytes (5 * u32)  
         // - V2 display: 28 bytes (7 * u32)
         // - Basic grid: 20 bytes (5 * u32 for version, rows, cols, count, flags)
         // - Display settings: 20 bytes (based on V1)
         
         // Try V1 approach with exact C layout
-        // V1: 20 + (128 * 20) + 20 = 2600 bytes ✓
+        // V1: 20 + (128 * 20) + 20 = 2600 bytes
         println!("Trying V1 with exact C struct size (2600 bytes)...");
         let mut buffer_v1: Vec<u8> = vec![0; 2600 * count as usize];
         
@@ -535,8 +539,8 @@ fn test_mosaic_enum_display_grids_c_compat() -> Result<(), String> {
             }
         }
 
-        // Try ultra-minimal approach - just allocate the memory and set minimal fields
-        println!("Trying ultra-minimal V1 approach...");
+        // Try minimal approach - just allocate the memory and set minimal fields
+        println!("Trying minimal V1 approach...");
         let grid_size_v1 = 2600;
         let mut minimal_buffer: Vec<u8> = vec![0; grid_size_v1 * count as usize];
         
@@ -566,11 +570,11 @@ fn test_mosaic_enum_display_grids_c_compat() -> Result<(), String> {
         let status = m::NvAPI_Mosaic_EnumDisplayGrids(minimal_buffer.as_mut_ptr() as *mut m::NV_MOSAIC_GRID_TOPO, &mut count_minimal);
         match status_result(status) {
             Ok(()) => {
-                println!("Ultra-minimal V1 succeeded: count={}", count_minimal);
+                println!("Minimal V1 succeeded: count={}", count_minimal);
                 return Ok(());
             }
             Err(e) => {
-                println!("Ultra-minimal V1 failed: {:?}", e);
+                println!("Minimal V1 failed: {:?}", e);
             }
         }
 
