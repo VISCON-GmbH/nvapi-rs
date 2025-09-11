@@ -31,6 +31,7 @@ impl PhysicalGpu {
     }
 
     // Construct from a raw NVAPI physical GPU handle (crate-internal use).
+    #[allow(unused)]
     pub(crate) fn from_raw_handle(handle: sys::handles::NvPhysicalGpuHandle) -> Option<Self> {
         if handle.is_null() {
             return None;

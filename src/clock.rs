@@ -513,7 +513,7 @@ impl RawConversion for power::private::NV_GPU_POWER_TOPO_ENTRY {
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_POWER_TOPO_ENTRY {
-                a: unknown,
+                a: _unknown, // TODO: Warning silenced. Figure out what this is.
                 b: 0,
                 power,
                 d: 0,
