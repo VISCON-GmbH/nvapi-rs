@@ -7,7 +7,7 @@ nvstruct! {
     pub version: u32,
         boardId: u32,
         revision: u32,
-        capFlags: u32,
+        pub capFlags: u32,
     }
 }
 
@@ -102,23 +102,27 @@ nvenum! {
 
 nvstruct! {
     pub struct NV_GSYNC_DELAY {
-        version: u32,
-        numLines: u32,
-        numPixels: u32,
+        pub version: u32,
+        pub numLines: u32,
+        pub numPixels: u32,
         maxLines: u32,
         minPixels: u32,
     }
 }
 
+const NV_GSYNC_DELAY_SIZE: usize = std::mem::size_of::<NV_GSYNC_DELAY>();
+
+nvversion! { NV_GSYNC_DELAY_VER(NV_GSYNC_DELAY = NV_GSYNC_DELAY_SIZE, 1) }
+
 nvstruct! {
     pub struct NV_GSYNC_CONTROL_PARAMS {
     pub version: u32,
-        polarity: NVAPI_GSYNC_POLARITY,
-        vmode: NVAPI_GSYNC_VIDEO_MODE,
-        interval: u32,
-        source: NVAPI_GSYNC_SYNC_SOURCE,
-        interlaceMode: u32,
-        syncSourceIsOutput: u32,
+        pub polarity: NVAPI_GSYNC_POLARITY,
+        pub vmode: NVAPI_GSYNC_VIDEO_MODE,
+        pub interval: u32,
+        pub source: NVAPI_GSYNC_SYNC_SOURCE,
+        pub interlaceMode: u32,
+        pub syncSourceIsOutput: u32,
         reserved: u32,
         syncSkew: NV_GSYNC_DELAY,
         startupDelay: NV_GSYNC_DELAY,
@@ -163,11 +167,11 @@ pub const NVAPI_MAX_RJ45_PER_GSYNC: usize = 2;
 nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V1 {
     pub version: u32,
-         refreshRate: u32,
+         pub refreshRate: u32,
          RJ45_IO: [NVAPI_GSYNC_RJ45_IO; NVAPI_MAX_RJ45_PER_GSYNC],
          RJ45_Ethernet: [u32; NVAPI_MAX_RJ45_PER_GSYNC],
          houseSyncIncoming: u32,
-         bHouseSync: u32,
+         pub bHouseSync: u32,
     }
 }
 

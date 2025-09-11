@@ -7,6 +7,7 @@
 use crate::sys::gsync::{self};
 use crate::PhysicalGpu;
 use log::trace;
+use nvapi_sys::handles::NvGSyncDeviceHandle;
 use nvapi_sys::{handles, status_result, NVAPI_MAX_GSYNC_DEVICES};
 
 /// A handle to an NVIDIA G-SYNC device.
@@ -17,7 +18,7 @@ use nvapi_sys::{handles, status_result, NVAPI_MAX_GSYNC_DEVICES};
 /// See also: [`GSyncDevice::enum_sync_devices`].
 #[derive(Debug)]
 pub struct GSyncDevice {
-    handle: handles::NvGSyncDeviceHandle,
+    handle: NvGSyncDeviceHandle,
 }
 
 impl GSyncDevice {
