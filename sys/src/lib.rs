@@ -8,8 +8,6 @@ pub mod nvid;
 pub mod nvapi;
 pub mod status;
 pub mod types;
-pub mod gsync;
-pub mod mosaic;
 
 /// NVAPI Handles - These handles are retrieved from various calls and passed in
 /// to others in NvAPI These are meant to be opaque types. Do not assume they
@@ -30,6 +28,13 @@ pub mod gpu;
 /// I2C API - Provides ability to read or write data using I2C protocol.
 /// These APIs allow I2C access only to DDC monitors
 pub mod i2c;
+
+/// G-SYNC APIs for querying and configuring G-SYNC capable displays and GPUs. 
+/// This handles the professional G-SYNC achieved with sync cards like the Quadro Sync II (now called RTX PRO Sync).
+pub mod gsync;
+
+/// Mosaic APIs for querying and configuring Mosaic (NVIDIA's multi-display technology) settings and topology.
+pub mod mosaic;
 
 #[cfg(windows)]
 pub mod dx;

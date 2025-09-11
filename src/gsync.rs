@@ -8,7 +8,6 @@ use crate::sys::gsync::{self};
 use crate::PhysicalGpu;
 use log::trace;
 use nvapi_sys::{handles, status_result, NVAPI_MAX_GSYNC_DEVICES};
-use std::vec::IntoIter as VecIntoIter;
 
 /// A handle to an NVIDIA G-SYNC device.
 ///

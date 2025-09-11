@@ -2,6 +2,18 @@ use std::os::raw::c_char;
 use crate::status::NvAPI_Status;
 use crate::handles;
 
+// Display control enums
+nvenum! {
+    /// NV_ROTATE: Rotate modes used in NvAPI_SetViewEx() and Mosaic grid displays
+    pub enum NV_ROTATE / Rotate {
+        NV_ROTATE_0 / R0 = 0,
+        NV_ROTATE_90 / R90 = 1,
+        NV_ROTATE_180 / R180 = 2,
+        NV_ROTATE_270 / R270 = 3,
+        NV_ROTATE_IGNORED / Ignored = 4,
+    }
+}
+
 nvapi_fn! {
     pub type EnumNvidiaDisplayHandleFn = extern "C" fn(thisEnum: u32, pNvDispHandle: *mut handles::NvDisplayHandle) -> NvAPI_Status;
 

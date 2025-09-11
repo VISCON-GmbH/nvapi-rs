@@ -2,7 +2,7 @@
 name = "nvapi"
 version = "0.2.1" # keep in sync with html_root_url
 authors = ["arcnmx"]
-edition = "2021"
+edition = "2024"
 
 description = "NVIDIA NVAPI bindings"
 keywords = ["nvidia", "nvapi", "gtx"]
