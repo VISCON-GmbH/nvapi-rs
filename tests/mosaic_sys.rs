@@ -574,7 +574,7 @@ fn test_mosaic_enum_display_grids_c_compat() -> Result<(), String> {
             }
         }
 
-        Err("All approaches failed - this appears to be a driver/hardware limitation".into())
+        Err("FIXME: All struct versions (V1, V2) and initialization approaches return IncompatibleStructVersion".into())
     }
 }
 

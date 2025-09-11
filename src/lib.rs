@@ -9,6 +9,7 @@ mod clock;
 mod thermal;
 mod gpu;
 mod gsync;
+mod mosaic;
 mod info;
 #[cfg(feature = "i2c")]
 mod i2c_impl;
@@ -20,6 +21,7 @@ pub use thermal::*;
 pub use gpu::*;
 pub use info::*;
 pub use gsync::*;
+pub use mosaic::*;
 #[cfg(feature = "i2c")]
 pub use i2c_impl::*;
 
