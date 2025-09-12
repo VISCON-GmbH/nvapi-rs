@@ -46,9 +46,9 @@ pub const NV_MOSAIC_GRID_TOPO_FLAG_IMMERSIVE_GAMING: u32 = 1 << 1;
 pub const NV_MOSAIC_GRID_TOPO_FLAG_BASE_MOSAIC: u32 = 1 << 2;
 pub const NV_MOSAIC_GRID_TOPO_FLAG_DRIVER_RELOAD_ALLOWED: u32 = 1 << 3;
 pub const NV_MOSAIC_GRID_TOPO_FLAG_ACCELERATE_PRIMARY_DISPLAY: u32 = 1 << 4;
-// Present in V2 only
-pub const NV_MOSAIC_GRID_TOPO_FLAG_PIXEL_SHIFT: u32 = 1 << 5;
 
+// V2 Grid Topology flag: pixel shift support
+pub const NV_MOSAIC_GRID_TOPO_FLAG_PIXEL_SHIFT: u32 = 1 << 5;
 // Display topology warnings bit flags
 pub const NV_MOSAIC_DISPLAYTOPO_WARNING_DISPLAY_POSITION: u32 = 1 << 0; // NV_BIT(0)
 pub const NV_MOSAIC_DISPLAYTOPO_WARNING_DRIVER_RELOAD_REQUIRED: u32 = 1 << 1; // NV_BIT(1)
