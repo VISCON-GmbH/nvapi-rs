@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use std::{fmt, ptr};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct PhysicalGpu(sys::handles::NvPhysicalGpuHandle);
 
 unsafe impl Send for PhysicalGpu {}
