@@ -1,14 +1,17 @@
+use crate::sys;
+use crate::sys::gpu::{clock, power};
+use crate::types::{
+    CelsiusShifted, Kilohertz, Kilohertz2, Kilohertz2Delta, KilohertzDelta, Microvolts, Percentage,
+    Percentage1000, Range, RawConversion,
+};
+use log::trace;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::convert::Infallible;
 use std::{iter, slice};
-use crate::sys::gpu::{clock, power};
-use crate::sys;
-use serde::{Serialize, Deserialize};
-use log::trace;
-use crate::types::{Kilohertz, Kilohertz2, KilohertzDelta, Kilohertz2Delta, Percentage, Percentage1000, Microvolts, CelsiusShifted, Range, RawConversion};
 
-pub use sys::gpu::clock::PublicClockId as ClockDomain;
 pub use sys::gpu::clock::private::ClockLockMode;
+pub use sys::gpu::clock::PublicClockId as ClockDomain;
 pub use sys::gpu::power::private::PerfFlags;
 
 impl RawConversion for clock::NV_GPU_CLOCK_FREQUENCIES {
@@ -17,12 +20,12 @@ impl RawConversion for clock::NV_GPU_CLOCK_FREQUENCIES {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        Ok(ClockDomain::values().filter(|&c| c != ClockDomain::Undefined)
+        Ok(ClockDomain::values()
+            .filter(|&c| c != ClockDomain::Undefined)
             .map(|id| (id, &self.domain[id.raw() as usize]))
             .filter(|&(_, ref clock)| clock.bIsPresent.get())
             .map(|(id, clock)| (id, Kilohertz(clock.frequency)))
-            .collect()
-        )
+            .collect())
     }
 }
 
@@ -32,11 +35,15 @@ impl RawConversion for clock::private::NV_USAGES_INFO {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.usages.iter().enumerate()
+        self.usages
+            .iter()
+            .enumerate()
             .filter(|&(_, ref usage)| usage.bIsPresent.get())
-            .map(|(i, usage)| crate::pstate::UtilizationDomain::from_raw(i as _)
-                .and_then(|i| Percentage::from_raw(usage.percentage).map(|p| (i, p)))
-            ).collect()
+            .map(|(i, usage)| {
+                crate::pstate::UtilizationDomain::from_raw(i as _)
+                    .and_then(|i| Percentage::from_raw(usage.percentage).map(|p| (i, p)))
+            })
+            .collect()
     }
 }
 
@@ -118,7 +125,7 @@ impl<'a> Iterator for VfpMaskIter<'a> {
             }
 
             if set {
-                return Some(offset)
+                return Some(offset);
             }
         }
 
@@ -138,13 +145,28 @@ impl RawConversion for clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO_CL
         trace!("convert_raw({:#?})", self);
         match *self {
             clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO_CLOCK {
-                a: 0, b: 0, c: 0, d: 0, memDelta: 1, gpuDelta: 0,
+                a: 0,
+                b: 0,
+                c: 0,
+                d: 0,
+                memDelta: 1,
+                gpuDelta: 0,
             } => Ok(VfpMaskType::Memory),
             clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO_CLOCK {
-                a: 0, b: 0, c: 0, d: 0, memDelta: 0, gpuDelta: 1,
+                a: 0,
+                b: 0,
+                c: 0,
+                d: 0,
+                memDelta: 0,
+                gpuDelta: 1,
             } => Ok(VfpMaskType::Graphics),
             clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_INFO_CLOCK {
-                a: 0, b: 0, c: 0, d: 0, memDelta: 0, gpuDelta: 0,
+                a: 0,
+                b: 0,
+                c: 0,
+                d: 0,
+                memDelta: 0,
+                gpuDelta: 0,
             } => Ok(VfpMaskType::Unknown),
             _ => Err(sys::ArgumentRangeError),
         }
@@ -185,7 +207,15 @@ impl RawConversion for clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL
         trace!("convert_raw({:#?})", self);
         match *self {
             clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_GPU_DELTA {
-                a: 0, b: 0, c: 0, d: 0, e: 0, freqDeltaKHz, g: 0, h: 0, i: 0,
+                a: 0,
+                b: 0,
+                c: 0,
+                d: 0,
+                e: 0,
+                freqDeltaKHz,
+                g: 0,
+                h: 0,
+                i: 0,
             } => Ok(freqDeltaKHz),
             _ => Err(sys::ArgumentRangeError),
         }
@@ -206,12 +236,17 @@ impl RawConversion for clock::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL
                 .map(|i| (i, &self.gpuDeltas[i]))
                 .map(|(i, delta)| delta.convert_raw().map(|delta| (i, delta.into())))
                 .collect::<Result<_, _>>()?,
-            mem_delta: self.memFilled.iter().enumerate().filter_map(|(i, &filled)| match filled {
-                1 => Some(Ok(i)),
-                0 => None,
-                _ => Some(Err(sys::ArgumentRangeError)),
-            }).map(|i| i.map(|i| (self.gpuDeltas.len() + i, self.memDeltas[i].into())))
-            .collect::<Result<_, _>>()?,
+            mem_delta: self
+                .memFilled
+                .iter()
+                .enumerate()
+                .filter_map(|(i, &filled)| match filled {
+                    1 => Some(Ok(i)),
+                    0 => None,
+                    _ => Some(Err(sys::ArgumentRangeError)),
+                })
+                .map(|i| i.map(|i| (self.gpuDeltas.len() + i, self.memDeltas[i].into())))
+                .collect::<Result<_, _>>()?,
         })
     }
 }
@@ -234,8 +269,24 @@ impl RawConversion for clock::private::NV_GPU_CLOCK_CLIENT_CLK_DOMAINS_INFO_ENTR
         trace!("convert_raw({:#?})", self);
         match *self {
             clock::private::NV_GPU_CLOCK_CLIENT_CLK_DOMAINS_INFO_ENTRY {
-                a: 0, clockType, c: 0, d: 0, e: 0, f: 0, g: 0, h: 0, i: 0,
-                j: 0, rangeMax, rangeMin, tempMax, n: 0, o: 0, p: 0, q: 0, r: 0,
+                a: 0,
+                clockType,
+                c: 0,
+                d: 0,
+                e: 0,
+                f: 0,
+                g: 0,
+                h: 0,
+                i: 0,
+                j: 0,
+                rangeMax,
+                rangeMin,
+                tempMax,
+                n: 0,
+                o: 0,
+                p: 0,
+                q: 0,
+                r: 0,
             } => Ok(ClockRange {
                 domain: ClockDomain::from_raw(clockType)?,
                 range: Range {
@@ -255,7 +306,8 @@ impl RawConversion for clock::private::NV_GPU_CLOCK_CLIENT_CLK_DOMAINS_INFO {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.entries[..(self.numClocks - 1) as usize].iter()
+        self.entries[..(self.numClocks - 1) as usize]
+            .iter()
             .map(RawConversion::convert_raw)
             .collect::<Result<_, _>>()
     }
@@ -271,7 +323,10 @@ pub struct VfpEntry<K> {
 }
 
 impl<T> VfpEntry<T> {
-    pub fn from_entry<K>(e: VfpEntry<K>) -> Self where T: From<K> {
+    pub fn from_entry<K>(e: VfpEntry<K>) -> Self
+    where
+        T: From<K>,
+    {
         VfpEntry {
             unknown: e.unknown,
             frequency: e.frequency.into(),
@@ -289,7 +344,13 @@ impl RawConversion for power::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_GPU_ENTRY {
-                a, freq_kHz, voltage_uV, d: 0, e: 0, f: 0, g: 0,
+                a,
+                freq_kHz,
+                voltage_uV,
+                d: 0,
+                e: 0,
+                f: 0,
+                g: 0,
             } => Ok(VfpEntry {
                 unknown: a,
                 frequency: freq_kHz,
@@ -316,18 +377,28 @@ impl RawConversion for power::private::NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS 
         Ok(VfpCurve {
             graphics: VfpMaskIter::new(&self.mask)
                 .filter(|&i| i < self.gpuEntries.len())
-                .map(|i| self.gpuEntries[i].convert_raw().map(|e| (i, VfpEntry::from_entry(e))))
+                .map(|i| {
+                    self.gpuEntries[i]
+                        .convert_raw()
+                        .map(|e| (i, VfpEntry::from_entry(e)))
+                })
                 .collect::<Result<_, _>>()?,
             memory: VfpMaskIter::new(&self.mask)
-                .filter(|&i| i >= self.gpuEntries.len() && i < self.gpuEntries.len() + self.memEntries.len())
-                .map(|i| self.memEntries[i - self.gpuEntries.len()].convert_raw().map(|e| (i, VfpEntry::from_entry(e))))
+                .filter(|&i| {
+                    i >= self.gpuEntries.len() && i < self.gpuEntries.len() + self.memEntries.len()
+                })
+                .map(|i| {
+                    self.memEntries[i - self.gpuEntries.len()]
+                        .convert_raw()
+                        .map(|e| (i, VfpEntry::from_entry(e)))
+                })
                 .collect::<Result<_, _>>()?,
         })
     }
 }
 
 fn all_zero(s: &[u32]) -> bool {
-    return s.iter().all(|&v| v == 0)
+    return s.iter().all(|&v| v == 0);
 }
 
 impl RawConversion for power::private::NV_GPU_CLIENT_VOLT_RAILS_STATUS_V1 {
@@ -339,8 +410,11 @@ impl RawConversion for power::private::NV_GPU_CLIENT_VOLT_RAILS_STATUS_V1 {
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_CLIENT_VOLT_RAILS_STATUS_V1 {
-                version: _, flags: 0, ref zero,
-                value_uV, ref unknown,
+                version: _,
+                flags: 0,
+                ref zero,
+                value_uV,
+                ref unknown,
             } if all_zero(zero) && all_zero(unknown) => Ok(Microvolts(value_uV)),
             _ => Err(sys::ArgumentRangeError),
         }
@@ -356,7 +430,9 @@ impl RawConversion for power::private::NV_GPU_CLIENT_VOLT_RAILS_CONTROL_V1 {
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_CLIENT_VOLT_RAILS_CONTROL {
-                version: _, percent, ref unknown,
+                version: _,
+                percent,
+                ref unknown,
             } if all_zero(unknown) => Percentage::from_raw(percent),
             _ => Err(sys::ArgumentRangeError),
         }
@@ -387,8 +463,17 @@ impl RawConversion for power::private::NV_GPU_POWER_INFO_ENTRY {
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_POWER_INFO_ENTRY {
-                pstate, b: 0, c: 0, min_power, e: 0, f: 0,
-                def_power, h: 0, i: 0, max_power, k: 0,
+                pstate,
+                b: 0,
+                c: 0,
+                min_power,
+                e: 0,
+                f: 0,
+                def_power,
+                h: 0,
+                i: 0,
+                max_power,
+                k: 0,
             } => Ok(PowerInfoEntry {
                 pstate: crate::pstate::PState::from_raw(pstate as _)?,
                 range: Range {
@@ -411,7 +496,10 @@ impl RawConversion for power::private::NV_GPU_POWER_INFO {
         trace!("convert_raw({:#?})", self);
         Ok(PowerInfo {
             valid: self.valid != 0,
-            entries: self.entries[..self.count as usize].iter().map(RawConversion::convert_raw).collect::<Result<_, _>>()?,
+            entries: self.entries[..self.count as usize]
+                .iter()
+                .map(RawConversion::convert_raw)
+                .collect::<Result<_, _>>()?,
         })
     }
 }
@@ -425,7 +513,10 @@ impl RawConversion for power::private::NV_GPU_POWER_TOPO_ENTRY {
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_POWER_TOPO_ENTRY {
-                a: unknown, b: 0, power, d: 0
+                a: unknown,
+                b: 0,
+                power,
+                d: 0,
             } => Ok(Percentage1000(power)),
             _ => Err(sys::ArgumentRangeError),
         }
@@ -439,7 +530,10 @@ impl RawConversion for power::private::NV_GPU_POWER_TOPO {
     #[allow(non_snake_case)]
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.entries[..self.count as usize].iter().map(RawConversion::convert_raw).collect()
+        self.entries[..self.count as usize]
+            .iter()
+            .map(RawConversion::convert_raw)
+            .collect()
     }
 }
 
@@ -452,7 +546,10 @@ impl RawConversion for power::private::NV_GPU_POWER_STATUS_ENTRY {
         trace!("convert_raw({:#?})", self);
         match *self {
             power::private::NV_GPU_POWER_STATUS_ENTRY {
-                a: 0, b: 0, power, d: 0,
+                a: 0,
+                b: 0,
+                power,
+                d: 0,
             } => Ok(Percentage1000(power)),
             _ => Err(sys::ArgumentRangeError),
         }
@@ -466,7 +563,10 @@ impl RawConversion for power::private::NV_GPU_POWER_STATUS {
     #[allow(non_snake_case)]
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.entries[..self.count as usize].iter().map(RawConversion::convert_raw).collect()
+        self.entries[..self.count as usize]
+            .iter()
+            .map(RawConversion::convert_raw)
+            .collect()
     }
 }
 
@@ -486,7 +586,12 @@ impl RawConversion for clock::private::NV_GPU_PERF_CLIENT_LIMITS_ENTRY {
         trace!("convert_raw({:#?})", self);
         match *self {
             clock::private::NV_GPU_PERF_CLIENT_LIMITS_ENTRY {
-                id: _id, b: 0, mode, d: 0, voltage_uV, f: 0,
+                id: _id,
+                b: 0,
+                mode,
+                d: 0,
+                voltage_uV,
+                f: 0,
             } => Ok(ClockLockEntry {
                 mode: ClockLockMode::from_raw(mode)?,
                 voltage: Microvolts(voltage_uV),
@@ -505,7 +610,10 @@ impl RawConversion for clock::private::NV_GPU_PERF_CLIENT_LIMITS {
         if self.flags != 0 {
             Err(sys::ArgumentRangeError)
         } else {
-            self.entries[..self.count as usize].iter().map(|v| v.convert_raw().map(|e| (v.id as usize, e))).collect()
+            self.entries[..self.count as usize]
+                .iter()
+                .map(|v| v.convert_raw().map(|e| (v.id as usize, e)))
+                .collect()
         }
     }
 }
@@ -547,7 +655,12 @@ impl RawConversion for power::private::NV_GPU_PERF_STATUS {
         // TODO: check padding
         match *self {
             power::private::NV_GPU_PERF_STATUS {
-                flags: 0, limits, zero0: 0, unknown, zero1: 0, ..
+                flags: 0,
+                limits,
+                zero0: 0,
+                unknown,
+                zero1: 0,
+                ..
             } => Ok(PerfStatus {
                 unknown: unknown,
                 limits: PerfFlags::from_bits(limits).ok_or(sys::ArgumentRangeError)?,
@@ -592,7 +705,11 @@ impl RawConversion for power::private::NV_VOLT_TABLE {
         trace!("convert_raw({:#?})", self);
         Ok(VoltageTable {
             flags: self.flags,
-            entries: self.entries.iter().map(RawConversion::convert_raw).collect::<Result<_, _>>()?,
+            entries: self
+                .entries
+                .iter()
+                .map(RawConversion::convert_raw)
+                .collect::<Result<_, _>>()?,
         })
     }
 }

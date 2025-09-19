@@ -21,7 +21,7 @@ pub unsafe fn set_query_interface(ptr: QueryInterfaceFn) {
 }
 
 // Since v525 NVIDIA drivers have libnvidia-api.so.1 which implements NVAPI but the implementation is still poor
-// (many functions are not there, like it's impossible to identify physical handler by pci slot etc)
+// (many functions are not there, like it's impossible to identify physical handle by pci slot etc)
 #[cfg(target_os = "linux")]
 pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
     use libc::{ dlopen, dlsym };
@@ -57,7 +57,7 @@ pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
     }
 }
 
-#[cfg(macos)]
+#[cfg(target_os = "macos")]
 pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
     // TODO: Apparently nvapi is available for macOS?
     Err(Status::LibraryNotFound)
@@ -65,7 +65,7 @@ pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
 
 
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
     use winapi::um::libloaderapi::{GetProcAddress, LoadLibraryA};
     use std::mem;

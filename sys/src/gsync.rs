@@ -1,10 +1,10 @@
-use crate::NvAPI_Status;
 use crate::handles::NvGSyncDeviceHandle;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::NvAPI_Status;
 
 nvstruct! {
     pub struct NV_GSYNC_CAPABILITIES_V1 {
-        version: u32,
+    pub version: u32,
         boardId: u32,
         revision: u32,
         capFlags: u32,
@@ -15,7 +15,7 @@ const NV_GSYNC_CAPABILITIES_V1_SIZE: usize = 4 * 4;
 
 nvstruct! {
     pub struct NV_GSYNC_CAPABILITIES_V2 {
-        v1: NV_GSYNC_CAPABILITIES_V1,
+    pub v1: NV_GSYNC_CAPABILITIES_V1,
         extendedRevision: u32,
     }
 }
@@ -32,21 +32,24 @@ nvversion! { NV_GSYNC_CAPABILITIES_VER = NV_GSYNC_CAPABILITIES_VER_2 }
 
 nvenum! {
     pub enum NVAPI_GSYNC_DISPLAY_SYNC_STATE / DisplaySyncState {
-        NVAPI_GSYNC_DISPLAY_SYNC_STATE_UNSYNCED / Unsynced = 0,	
-        NVAPI_GSYNC_DISPLAY_SYNC_STATE_SLAVE / Slave = 1,	
+        NVAPI_GSYNC_DISPLAY_SYNC_STATE_UNSYNCED / Unsynced = 0,
+        NVAPI_GSYNC_DISPLAY_SYNC_STATE_SLAVE / Slave = 1,
         NVAPI_GSYNC_DISPLAY_SYNC_STATE_MASTER / Master = 2,
     }
 }
 
 nvstruct! {
     pub struct NV_GSYNC_DISPLAY {
-        version: u32,
-        displayId: u32,
-        isMasterable: u32,
-        reserved: u32,
- 	    syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
+    pub version: u32,
+    pub displayId: u32,
+    // C bitfield: isMasterable:1, reserved:31 — represented as a single u32
+    pub isMasterable: u32,
+    pub syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
     }
 }
+
+const NV_GSYNC_DISPLAY_SIZE: usize = std::mem::size_of::<NV_GSYNC_DISPLAY>();
+nvversion! { NV_GSYNC_DISPLAY_VER(NV_GSYNC_DISPLAY = NV_GSYNC_DISPLAY_SIZE, 1) }
 
 nvenum! {
     pub enum NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR / TopologyConnector {
@@ -60,19 +63,22 @@ nvenum! {
 
 nvstruct! {
     pub struct NV_GSYNC_GPU {
-        version: u32,
-        hPhysicalGpu: NvPhysicalGpuHandle,
+    pub version: u32,
+    pub hPhysicalGpu: NvPhysicalGpuHandle,
         connector: NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR,
-        hProxyPhysicalGpu: NvPhysicalGpuHandle,
-        isSynced: u32,
-        reserved: u32,
+    pub hProxyPhysicalGpu: NvPhysicalGpuHandle,
+    // C bitfield: isSynced:1, reserved:31 — represented as a single u32
+    isSynced: u32,
     }
 }
 
+const NV_GSYNC_GPU_SIZE: usize = std::mem::size_of::<NV_GSYNC_GPU>();
+nvversion! { NV_GSYNC_GPU_VER(NV_GSYNC_GPU = NV_GSYNC_GPU_SIZE, 1) }
+
 nvenum! {
     pub enum NVAPI_GSYNC_POLARITY / Polarity {
-        NVAPI_GSYNC_POLARITY_RISING_EDGE / RisingEdge = 0, 
-        NVAPI_GSYNC_POLARITY_FALLING_EDGE / FallingEdge = 1,	
+        NVAPI_GSYNC_POLARITY_RISING_EDGE / RisingEdge = 0,
+        NVAPI_GSYNC_POLARITY_FALLING_EDGE / FallingEdge = 1,
         NVAPI_GSYNC_POLARITY_BOTH_EDGES / BothEdges = 2,
     }
 }
@@ -106,7 +112,7 @@ nvstruct! {
 
 nvstruct! {
     pub struct NV_GSYNC_CONTROL_PARAMS {
-        version: u32,
+    pub version: u32,
         polarity: NVAPI_GSYNC_POLARITY,
         vmode: NVAPI_GSYNC_VIDEO_MODE,
         interval: u32,
@@ -118,6 +124,10 @@ nvstruct! {
         startupDelay: NV_GSYNC_DELAY,
     }
 }
+
+const NV_GSYNC_CONTROL_PARAMS_SIZE: usize = std::mem::size_of::<NV_GSYNC_CONTROL_PARAMS>();
+
+nvversion! { NV_GSYNC_CONTROL_PARAMS_VER(NV_GSYNC_CONTROL_PARAMS = NV_GSYNC_CONTROL_PARAMS_SIZE, 1) }
 
 nvenum! {
     pub enum NVAPI_GSYNC_DELAY_TYPE / DelayType {
@@ -137,8 +147,8 @@ nvstruct! {
     }
 }
 
-// TODO: this most likely wont work and needs to be updated.
-nvversion! { NV_GSYNC_STATUS_VER(NV_GSYNC_STATUS = 0, 1) /* temp */}
+const NV_GSYNC_STATUS_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATUS>();
+nvversion! { NV_GSYNC_STATUS_VER(NV_GSYNC_STATUS = NV_GSYNC_STATUS_SIZE, 1) }
 
 nvenum! {
     pub enum NVAPI_GSYNC_RJ45_IO / RJ45_IO {
@@ -152,12 +162,12 @@ pub const NVAPI_MAX_RJ45_PER_GSYNC: usize = 2;
 
 nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V1 {
-        version: u32,
-     	refreshRate: u32,
-     	RJ45_IO: [NVAPI_GSYNC_RJ45_IO; NVAPI_MAX_RJ45_PER_GSYNC],
-     	RJ45_Ethernet: [u32; NVAPI_MAX_RJ45_PER_GSYNC],
-     	houseSyncIncoming: u32,
-     	bHouseSync: u32,
+    pub version: u32,
+         refreshRate: u32,
+         RJ45_IO: [NVAPI_GSYNC_RJ45_IO; NVAPI_MAX_RJ45_PER_GSYNC],
+         RJ45_Ethernet: [u32; NVAPI_MAX_RJ45_PER_GSYNC],
+         houseSyncIncoming: u32,
+         bHouseSync: u32,
     }
 }
 
@@ -165,7 +175,7 @@ const NV_GSYNC_STATUS_PARAMS_V1_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATU
 
 nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V2 {
-        v1: NV_GSYNC_STATUS_PARAMS_V1,
+    pub v1: NV_GSYNC_STATUS_PARAMS_V1,
         bInternalSlave: u32,
         reserved: u32,
     }
@@ -175,54 +185,58 @@ nvinherit! { NV_GSYNC_STATUS_PARAMS_V2(v1: NV_GSYNC_STATUS_PARAMS_V1) }
 
 const NV_GSYNC_STATUS_PARAMS_V2_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATUS_PARAMS_V2>();
 
-pub type NV_GSYNC_STATUS_PARAMS = NV_GSYNC_STATUS_PARAMS_V2;
+// Default to V1 for broader compatibility. Some cards/drivers/sync boards return
+// NVAPI_INCOMPATIBLE_STRUCT_VERSION for V2.
+// TODO: Tested with 2x Quadro P4000 and Quadro Sync 2 with older Firmware (2.02). 
+// Investigate if newer GPUs and Q Sync firmware works with either version.
+pub type NV_GSYNC_STATUS_PARAMS = NV_GSYNC_STATUS_PARAMS_V1;
 
 nvversion! { NV_GSYNC_STATUS_PARAMS_VER_1(NV_GSYNC_STATUS_PARAMS_V1 = NV_GSYNC_STATUS_PARAMS_V1_SIZE, 1) }
 nvversion! { NV_GSYNC_STATUS_PARAMS_VER_2(NV_GSYNC_STATUS_PARAMS_V2 = NV_GSYNC_STATUS_PARAMS_V2_SIZE, 2) }
-nvversion! { NV_GSYNC_STATUS_PARAMS_VER = NV_GSYNC_STATUS_PARAMS_VER_2 }
+nvversion! { NV_GSYNC_STATUS_PARAMS_VER = NV_GSYNC_STATUS_PARAMS_VER_1 }
 
-nvapi! {
+nvapi_fn! {
     pub type GSync_EnumSyncDevicesFn = extern "C" fn(nvGSyncHandles: *mut [NvGSyncDeviceHandle; super::types::NVAPI_MAX_GSYNC_DEVICES], gsyncCount: *mut u32) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_EnumSyncDevices;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GSync_QueryCapabilitiesFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, pNvGSyncCapabilities: *mut NV_GSYNC_CAPABILITIES) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_QueryCapabilities;
 }
 
-nvapi! {
-    pub type GSync_GetTopologyFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, gsyncGpuCount: *mut u32, gsyncGPUs: *mut NV_GSYNC_GPU, gsyncDisplayCount: u32, gsyncDisplays: *mut NV_GSYNC_DISPLAY) -> NvAPI_Status;
+nvapi_fn! {
+    pub type GSync_GetTopologyFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, gsyncGpuCount: *mut u32, gsyncGPUs: *mut NV_GSYNC_GPU, gsyncDisplayCount: *mut u32, gsyncDisplays: *mut NV_GSYNC_DISPLAY) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_GetTopology;
 }
 
-nvapi! {
-    pub type GSync_SetSyncStateSettingsFn = extern "C" fn(gsyncDisplayCount: u32, pGsyncDisplays: NV_GSYNC_DISPLAY, flags: u32) -> NvAPI_Status;
+nvapi_fn! {
+    pub type GSync_SetSyncStateSettingsFn = extern "C" fn(gsyncDisplayCount: u32, pGsyncDisplays: *const NV_GSYNC_DISPLAY, flags: u32) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_SetSyncStateSettings;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GSync_GetControlParametersFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, pGsyncControls: *mut NV_GSYNC_CONTROL_PARAMS) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_GetControlParameters;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GSync_SetControlParametersFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, pGsyncControls: *mut NV_GSYNC_CONTROL_PARAMS) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_SetControlParameters;
 }
 
-nvapi! {
+nvapi_fn! {
     // Parameter should be pointer?
     pub type GSync_AdjustSyncDelayFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, delayType: NVAPI_GSYNC_DELAY_TYPE, pGsyncDelay: *mut NV_GSYNC_DELAY, syncSteps: *mut u32) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_AdjustSyncDelay;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GSync_GetSyncStatusFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, hPhysicalGpu: NvPhysicalGpuHandle, status: *mut NV_GSYNC_STATUS) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_GetSyncStatus;
 }
 
-nvapi! {
+nvapi_fn! {
     pub type GSync_GetStatusParametersFn = extern "C" fn(hNvGSyncDevice: NvGSyncDeviceHandle, pStatusParams: *mut NV_GSYNC_STATUS_PARAMS) -> NvAPI_Status;
     pub unsafe fn NvAPI_GSync_GetStatusParameters;
 }
