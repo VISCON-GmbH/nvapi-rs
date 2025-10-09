@@ -4,6 +4,7 @@
 pub use nvapi_sys as sys;
 
 mod clock;
+#[path = "gpu/mod.rs"]
 mod gpu;
 mod gsync;
 #[cfg(feature = "i2c")]
