@@ -1,10 +1,12 @@
 use log::trace;
+use serde::{Deserialize, Serialize};
 use crate::sys::gpu::{thermal, cooler};
 use crate::sys;
 use crate::types::{Percentage, Celsius, CelsiusShifted, Range, RawConversion};
 
 pub use sys::gpu::thermal::{ThermalController, ThermalTarget};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct Sensor {
     pub controller: ThermalController,
@@ -41,6 +43,7 @@ impl RawConversion for thermal::NV_GPU_THERMAL_SETTINGS {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct ThermalInfo {
     pub controller: ThermalController,
@@ -82,6 +85,7 @@ impl RawConversion for thermal::private::NV_GPU_THERMAL_INFO {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct ThermalLimit {
     pub controller: ThermalController,
@@ -117,6 +121,7 @@ impl RawConversion for thermal::private::NV_GPU_CLIENT_THERMAL_POLICIES_STATUS {
 
 pub use sys::gpu::cooler::private::{CoolerType, CoolerController, CoolerPolicy, CoolerTarget, CoolerControl};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct Cooler {
     pub kind: CoolerType,
@@ -168,6 +173,7 @@ impl RawConversion for cooler::private::NV_GPU_COOLER_SETTINGS {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct CoolerLevel {
     pub level: Percentage,
@@ -197,6 +203,7 @@ impl RawConversion for cooler::private::NV_GPU_SETCOOLER_LEVEL {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct CoolerPolicyLevel {
     pub level_id: u32,
@@ -218,6 +225,7 @@ impl RawConversion for cooler::private::NV_GPU_COOLER_POLICY_LEVEL {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct CoolerPolicyTable {
     pub policy: CoolerPolicy,
