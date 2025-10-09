@@ -1,5 +1,5 @@
-use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::status::NvAPI_Status;
 
 nvenum! {
     /// Used in NV_GPU_THERMAL_SETTINGS
@@ -112,8 +112,8 @@ nvapi_fn! {
 
 /// Undocumented API
 pub mod private {
-    use crate::status::NvAPI_Status;
     use crate::handles::NvPhysicalGpuHandle;
+    use crate::status::NvAPI_Status;
 
     pub const NVAPI_MAX_THERMAL_INFO_ENTRIES: usize = 4;
 
@@ -138,7 +138,8 @@ pub mod private {
             pub entries: [NV_GPU_THERMAL_INFO_ENTRY; NVAPI_MAX_THERMAL_INFO_ENTRIES],
         }
     }
-    const NV_GPU_THERMAL_INFO_V2_SIZE: usize = 4 * 2 + NV_GPU_THERMAL_INFO_ENTRY_SIZE * NVAPI_MAX_THERMAL_INFO_ENTRIES;
+    const NV_GPU_THERMAL_INFO_V2_SIZE: usize =
+        4 * 2 + NV_GPU_THERMAL_INFO_ENTRY_SIZE * NVAPI_MAX_THERMAL_INFO_ENTRIES;
 
     pub type NV_GPU_THERMAL_INFO = NV_GPU_THERMAL_INFO_V2;
 
@@ -167,7 +168,8 @@ pub mod private {
             pub entries: [NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_ENTRY; NVAPI_MAX_THERMAL_LIMIT_ENTRIES],
         }
     }
-    const NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_V2_SIZE: usize = 4 * 2 + NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_ENTRY_SIZE * NVAPI_MAX_THERMAL_LIMIT_ENTRIES;
+    const NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_V2_SIZE: usize =
+        4 * 2 + NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_ENTRY_SIZE * NVAPI_MAX_THERMAL_LIMIT_ENTRIES;
 
     pub type NV_GPU_CLIENT_THERMAL_POLICIES_STATUS = NV_GPU_CLIENT_THERMAL_POLICIES_STATUS_V2;
 

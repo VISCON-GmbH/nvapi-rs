@@ -10,7 +10,6 @@ nv_declare_handle! {
     NvPhysicalGpuHandle
 }
 
-
 nv_declare_handle! {
     /// Display Device driven by NVIDIA GPU(s) (an attached display)
     NvDisplayHandle

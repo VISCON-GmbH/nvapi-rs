@@ -37,7 +37,10 @@ fn main() -> Result<(), nvapi::Status> {
         let mut index = 0;
         for gpu in dev.get_physical_gpus()? {
             println!("    GPU #{}", index);
-            println!("      {}", gpu.full_name().unwrap_or_else(|_| "<unknown>".to_string()));
+            println!(
+                "      {}",
+                gpu.full_name().unwrap_or_else(|_| "<unknown>".to_string())
+            );
             println!("      Cuda cores: {}", gpu.core_count()?);
             println!("      VRAM: {:#?}", gpu.memory_info()?.dedicated);
             index += 1;

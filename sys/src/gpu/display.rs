@@ -1,5 +1,5 @@
-use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::status::NvAPI_Status;
 
 nvenum! {
     pub enum NV_MONITOR_CONN_TYPE / MonitorConnectorType {

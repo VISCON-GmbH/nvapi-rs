@@ -1,5 +1,5 @@
-use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::status::NvAPI_Status;
 
 nvapi_fn! {
     pub type GPU_GetTachReadingFn = extern "C" fn(hPhysicalGPU: NvPhysicalGpuHandle, pValue: *mut u32) -> NvAPI_Status;
@@ -10,8 +10,8 @@ nvapi_fn! {
 
 /// Undocumented API
 pub mod private {
-    use crate::status::NvAPI_Status;
     use crate::handles::NvPhysicalGpuHandle;
+    use crate::status::NvAPI_Status;
 
     pub const NVAPI_MIN_COOLER_LEVEL: usize = 0;
     pub const NVAPI_MAX_COOLER_LEVEL: usize = 100;

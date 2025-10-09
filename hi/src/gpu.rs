@@ -1,25 +1,18 @@
-use std::collections::BTreeMap;
-use serde::{Serialize, Deserialize};
 use crate::{allowable_result, allowable_result_fallback};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
-use nvapi::{self,
-    ClockTable, VfpCurve, VfpEntry, Sensor, Cooler, ThermalInfo, PowerInfoEntry,
-    ClockFrequencyType, ClockEntry,
-    BaseVoltage, PStates, ClockRange, ThermalLimit,
+use nvapi::{
+    self, BaseVoltage, ClockEntry, ClockFrequencyType, ClockRange, ClockTable, Cooler, PStates,
+    PowerInfoEntry, Sensor, ThermalInfo, ThermalLimit, VfpCurve, VfpEntry,
 };
 pub use nvapi::{
-    PhysicalGpu,
-    Vendor, SystemType, RamType, RamMaker, Foundry,
-    ClockFrequencies, ClockDomain, VoltageDomain, UtilizationDomain, Utilizations, ClockLockMode, ClockLockEntry,
-    CoolerType, CoolerController, CoolerControl, CoolerPolicy, CoolerTarget, CoolerLevel,
-    VoltageStatus, VoltageTable,
-    PerfInfo, PerfStatus,
-    ThermalController, ThermalTarget,
-    MemoryInfo, PciIdentifiers, DriverModel,
-    Percentage, Celsius,
-    Range,
-    Kibibytes, Microvolts, MicrovoltsDelta, Kilohertz, KilohertzDelta,
-    PState,
+    Celsius, ClockDomain, ClockFrequencies, ClockLockEntry, ClockLockMode, CoolerControl,
+    CoolerController, CoolerLevel, CoolerPolicy, CoolerTarget, CoolerType, DriverModel, Foundry,
+    Kibibytes, Kilohertz, KilohertzDelta, MemoryInfo, Microvolts, MicrovoltsDelta, PState,
+    PciIdentifiers, Percentage, PerfInfo, PerfStatus, PhysicalGpu, RamMaker, RamType, Range,
+    SystemType, ThermalController, ThermalTarget, UtilizationDomain, Utilizations, Vendor,
+    VoltageDomain, VoltageStatus, VoltageTable,
 };
 
 pub struct Gpu {
@@ -111,9 +104,7 @@ pub struct GpuSettings {
 
 impl Gpu {
     pub fn new(gpu: PhysicalGpu) -> Self {
-        Gpu {
-            gpu: gpu,
-        }
+        Gpu { gpu: gpu }
     }
 
     pub fn into_inner(self) -> PhysicalGpu {
@@ -131,7 +122,11 @@ impl Gpu {
     pub fn info(&self) -> nvapi::Result<GpuInfo> {
         let pstates = allowable_result(self.gpu.pstates())?;
         let (pstates, ov) = match pstates {
-            Ok(PStates { editable: _editable, pstates, overvolt }) => (pstates, overvolt),
+            Ok(PStates {
+                editable: _editable,
+                pstates,
+                overvolt,
+            }) => (pstates, overvolt),
             Err(..) => (Default::default(), Default::default()),
         };
         let pci = self.gpu.pci_identifiers()?;
@@ -173,7 +168,18 @@ impl Gpu {
                 Ok(p) => p.entries.into_iter().map(From::from).collect(),
                 Err(..) => Default::default(),
             },
-            pstate_limits: pstates.into_iter().map(|p| (p.id, p.clocks.into_iter().map(|p| (p.domain(), p.into())).collect())).collect(),
+            pstate_limits: pstates
+                .into_iter()
+                .map(|p| {
+                    (
+                        p.id,
+                        p.clocks
+                            .into_iter()
+                            .map(|p| (p.domain(), p.into()))
+                            .collect(),
+                    )
+                })
+                .collect(),
             overvolt_limits: ov.into_iter().map(From::from).collect(),
             vfp_limits: match allowable_result(self.gpu.vfp_ranges())? {
                 Ok(l) => l.into_iter().map(|v| (v.domain, v.into())).collect(),
@@ -199,26 +205,44 @@ impl Gpu {
             voltage_table: allowable_result(self.gpu.voltage_table())?.ok(),
             tachometer: allowable_result(self.gpu.tachometer())?.ok(),
             utilization: self.gpu.dynamic_pstates_info()?,
-            power: self.gpu.power_usage()?.into_iter().map(From::from).collect(),
+            power: self
+                .gpu
+                .power_usage()?
+                .into_iter()
+                .map(From::from)
+                .collect(),
             sensors: match allowable_result(self.gpu.thermal_settings(None))? {
-                Ok(s) => s.into_iter().map(|s| (From::from(s), s.current_temperature)).collect(),
+                Ok(s) => s
+                    .into_iter()
+                    .map(|s| (From::from(s), s.current_temperature))
+                    .collect(),
                 Err(..) => Default::default(),
             },
             coolers: match allowable_result(self.gpu.cooler_settings(None))? {
-                Ok(c) => c.into_iter().map(|c| (From::from(c), From::from(c))).collect(),
+                Ok(c) => c
+                    .into_iter()
+                    .map(|c| (From::from(c), From::from(c)))
+                    .collect(),
                 Err(..) => Default::default(),
             },
             perf: self.gpu.perf_status()?,
             vfp: match mask {
-                Ok(mask) => allowable_result(self.gpu.vfp_curve(mask.mask))?.map(From::from).ok(),
+                Ok(mask) => allowable_result(self.gpu.vfp_curve(mask.mask))?
+                    .map(From::from)
+                    .ok(),
                 Err(..) => None,
             },
             vfp_locks: match allowable_result(self.gpu.vfp_locks())? {
-                Ok(l) => l.into_iter().filter_map(|(id, e)| if e.mode == ClockLockMode::Manual {
-                    Some((id, e.voltage))
-                } else {
-                    None
-                }).collect(),
+                Ok(l) => l
+                    .into_iter()
+                    .filter_map(|(id, e)| {
+                        if e.mode == ClockLockMode::Manual {
+                            Some((id, e.voltage))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect(),
                 Err(..) => Default::default(),
             },
         })
@@ -228,7 +252,11 @@ impl Gpu {
         let mask = allowable_result(self.gpu.vfp_mask())?;
         let pstates = allowable_result(self.gpu.pstates())?;
         let (pstates, ov) = match pstates {
-            Ok(PStates { editable: _editable, pstates, overvolt }) => (pstates, overvolt),
+            Ok(PStates {
+                editable: _editable,
+                pstates,
+                overvolt,
+            }) => (pstates, overvolt),
             Err(..) => (Default::default(), Default::default()),
         };
 
@@ -243,22 +271,41 @@ impl Gpu {
                 Err(..) => Default::default(),
             },
             coolers: match allowable_result(self.gpu.cooler_settings(None))? {
-                Ok(c) => c.into_iter().map(|c| (From::from(c), From::from(c))).collect(),
+                Ok(c) => c
+                    .into_iter()
+                    .map(|c| (From::from(c), From::from(c)))
+                    .collect(),
                 Err(..) => Default::default(),
             },
             vfp: match mask {
-                Ok(mask) => allowable_result(self.gpu.vfp_table(mask.mask))?.map(From::from).ok(),
+                Ok(mask) => allowable_result(self.gpu.vfp_table(mask.mask))?
+                    .map(From::from)
+                    .ok(),
                 Err(..) => None,
             },
             vfp_locks: match allowable_result(self.gpu.vfp_locks())? {
                 Ok(l) => l,
                 Err(..) => Default::default(),
             },
-            pstate_deltas: pstates.into_iter().filter(|p| p.editable)
-                .map(|p| (p.id, p.clocks.into_iter().filter(|p| p.editable())
-                    .map(|p| (p.domain(), p.frequency_delta().value)).collect())
-                ).collect(),
-            overvolt: ov.into_iter().filter(|v| v.editable).map(|v| v.voltage_delta.value).collect(),
+            pstate_deltas: pstates
+                .into_iter()
+                .filter(|p| p.editable)
+                .map(|p| {
+                    (
+                        p.id,
+                        p.clocks
+                            .into_iter()
+                            .filter(|p| p.editable())
+                            .map(|p| (p.domain(), p.frequency_delta().value))
+                            .collect(),
+                    )
+                })
+                .collect(),
+            overvolt: ov
+                .into_iter()
+                .filter(|v| v.editable)
+                .map(|v| v.voltage_delta.value)
+                .collect(),
         })
     }
 
@@ -266,22 +313,30 @@ impl Gpu {
         self.gpu.set_core_voltage_boost(boost)
     }
 
-    pub fn set_power_limits<I: Iterator<Item=Percentage>>(&self, limits: I) -> nvapi::Result<()> {
+    pub fn set_power_limits<I: Iterator<Item = Percentage>>(&self, limits: I) -> nvapi::Result<()> {
         // TODO: match against power_limit_info, use range.min/max from there if it matches (can get fraction of a percent!)
         self.gpu.set_power_limit(limits.map(From::from))
     }
 
-    pub fn set_sensor_limits<I: Iterator<Item=Celsius>>(&self, limits: I) -> nvapi::Result<()> {
-        self.gpu.thermal_limit_info().and_then(|(_, info)| self.gpu.set_thermal_limit(
-            limits.zip(info.into_iter()).map(|(limit, info)| ThermalLimit {
-                controller: info.controller,
-                flags: info.default_flags,
-                value: limit.into(),
-            })
-        ))
+    pub fn set_sensor_limits<I: Iterator<Item = Celsius>>(&self, limits: I) -> nvapi::Result<()> {
+        self.gpu.thermal_limit_info().and_then(|(_, info)| {
+            self.gpu
+                .set_thermal_limit(
+                    limits
+                        .zip(info.into_iter())
+                        .map(|(limit, info)| ThermalLimit {
+                            controller: info.controller,
+                            flags: info.default_flags,
+                            value: limit.into(),
+                        }),
+                )
+        })
     }
 
-    pub fn set_cooler_levels<I: Iterator<Item=CoolerLevel>>(&self, levels: I) -> nvapi::Result<()> {
+    pub fn set_cooler_levels<I: Iterator<Item = CoolerLevel>>(
+        &self,
+        levels: I,
+    ) -> nvapi::Result<()> {
         self.gpu.set_cooler_levels(None, levels)
     }
 
@@ -289,26 +344,43 @@ impl Gpu {
         self.gpu.restore_cooler_settings(&[])
     }
 
-    pub fn set_vfp<I: Iterator<Item=(usize, KilohertzDelta)>, M: Iterator<Item=(usize, KilohertzDelta)>>(&self, clock_deltas: I, mem_deltas: M) -> nvapi::Result<()> {
-        self.gpu.set_vfp_table([0, 0, 0, 0], clock_deltas.map(|(i, d)| (i, d.into())), mem_deltas.map(|(i, d)| (i, d.into())))
+    pub fn set_vfp<
+        I: Iterator<Item = (usize, KilohertzDelta)>,
+        M: Iterator<Item = (usize, KilohertzDelta)>,
+    >(
+        &self,
+        clock_deltas: I,
+        mem_deltas: M,
+    ) -> nvapi::Result<()> {
+        self.gpu.set_vfp_table(
+            [0, 0, 0, 0],
+            clock_deltas.map(|(i, d)| (i, d.into())),
+            mem_deltas.map(|(i, d)| (i, d.into())),
+        )
     }
 
     pub fn set_vfp_lock(&self, voltage: Microvolts) -> nvapi::Result<()> {
-        self.gpu.set_vfp_locks(self.gpu.vfp_locks()?
-            .into_iter().max_by_key(|&(id, _)| id).into_iter()
-            .map(|(id, entry)| (id, Some(voltage)))
+        self.gpu.set_vfp_locks(
+            self.gpu
+                .vfp_locks()?
+                .into_iter()
+                .max_by_key(|&(id, _)| id)
+                .into_iter()
+                .map(|(id, entry)| (id, Some(voltage))),
         )
     }
 
     pub fn reset_vfp_lock(&self) -> nvapi::Result<()> {
-        self.gpu.set_vfp_locks(self.gpu.vfp_locks()?.into_iter().map(|(id, _)| (id, None)))
+        self.gpu
+            .set_vfp_locks(self.gpu.vfp_locks()?.into_iter().map(|(id, _)| (id, None)))
     }
 
     pub fn reset_vfp(&self) -> nvapi::Result<()> {
         use std::iter;
 
         let mask = self.gpu.vfp_mask()?;
-        self.gpu.set_vfp_table(mask.mask, iter::empty(), iter::empty())
+        self.gpu
+            .set_vfp_table(mask.mask, iter::empty(), iter::empty())
     }
 }
 
@@ -346,14 +418,34 @@ pub struct PStateLimit {
 impl From<ClockEntry> for PStateLimit {
     fn from(s: ClockEntry) -> Self {
         match s {
-            ClockEntry::Range { domain: _, editable, frequency_delta, frequency_range, voltage_domain, voltage_range } => PStateLimit {
-                frequency_delta: if editable { Some(frequency_delta.range) } else { None },
+            ClockEntry::Range {
+                domain: _,
+                editable,
+                frequency_delta,
+                frequency_range,
+                voltage_domain,
+                voltage_range,
+            } => PStateLimit {
+                frequency_delta: if editable {
+                    Some(frequency_delta.range)
+                } else {
+                    None
+                },
                 frequency: frequency_range,
                 voltage: voltage_range,
                 voltage_domain: voltage_domain,
             },
-            ClockEntry::Single { domain: _, editable, frequency_delta, frequency } => PStateLimit {
-                frequency_delta: if editable { Some(frequency_delta.range) } else { None },
+            ClockEntry::Single {
+                domain: _,
+                editable,
+                frequency_delta,
+                frequency,
+            } => PStateLimit {
+                frequency_delta: if editable {
+                    Some(frequency_delta.range)
+                } else {
+                    None
+                },
                 frequency: Range::from_scalar(frequency),
                 voltage: Default::default(),
                 voltage_domain: VoltageDomain::Undefined,
@@ -465,7 +557,10 @@ pub struct VfpPoint {
     pub voltage: Microvolts,
 }
 
-impl<T> From<VfpEntry<T>> for VfpPoint where Kilohertz: From<T> {
+impl<T> From<VfpEntry<T>> for VfpPoint
+where
+    Kilohertz: From<T>,
+{
     fn from(v: VfpEntry<T>) -> Self {
         VfpPoint {
             frequency: v.frequency.into(),
@@ -500,8 +595,16 @@ pub struct VfpDeltas {
 impl From<ClockTable> for VfpDeltas {
     fn from(c: ClockTable) -> Self {
         VfpDeltas {
-            graphics: c.gpu_delta.into_iter().map(|(i, d)| (i, d.into())).collect(),
-            memory: c.mem_delta.into_iter().map(|(i, d)| (i, d.into())).collect(),
+            graphics: c
+                .gpu_delta
+                .into_iter()
+                .map(|(i, d)| (i, d.into()))
+                .collect(),
+            memory: c
+                .mem_delta
+                .into_iter()
+                .map(|(i, d)| (i, d.into()))
+                .collect(),
         }
     }
 }

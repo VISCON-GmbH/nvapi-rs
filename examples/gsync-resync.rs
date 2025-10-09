@@ -31,15 +31,17 @@ fn main() -> Result<(), nvapi::Status> {
         // Validate SetSyncStateSettings by re-applying current topology (optional)
         if apply_sync {
             let (_gpus, displays) = dev.get_topology()?;
-            println!("  re-applying current sync state to {} active displays...", displays.len());
+            println!(
+                "  re-applying current sync state to {} active displays...",
+                displays.len()
+            );
             // Convenience wrapper that preserves current per-display state
             // (no topology change, should be a no-op if the wrapper builds from current state)
             dev.set_sync_state_settings_from_topology(&displays, 0)?;
             println!("  sync state re-applied.");
             continue;
-        } 
+        }
         println!("  skipping sync state apply (pass --apply-sync to test)");
-    
     }
 
     Ok(())

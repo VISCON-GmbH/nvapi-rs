@@ -1,5 +1,5 @@
-use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::status::NvAPI_Status;
 use crate::types::BoolU32;
 
 pub const NVAPI_MAX_GPU_CLOCKS: usize = 32;
@@ -99,9 +99,9 @@ pub mod private {
     pub const NVAPI_MAX_USAGES_PER_GPU: usize = 8;
     pub const NVAPI_MAX_CLOCKS_PER_GPU: usize = 288;
 
-    use crate::types::BoolU32;
-    use crate::status::NvAPI_Status;
     use crate::handles::NvPhysicalGpuHandle;
+    use crate::status::NvAPI_Status;
+    use crate::types::BoolU32;
 
     nvstruct! {
         pub struct NV_USAGES_INFO_USAGE {
@@ -191,7 +191,8 @@ pub mod private {
     nvversion! { NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_VER_1(NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_V1 = 9248, 1) }
     nvversion! { NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_VER = NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_VER_1 }
 
-    pub type NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL = NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_V1;
+    pub type NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL =
+        NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_CONTROL_V1;
 
     nvapi_fn! {
         /// Pascal only

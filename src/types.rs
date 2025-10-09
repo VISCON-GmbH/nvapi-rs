@@ -1,8 +1,8 @@
+use crate::sys;
+use serde::{Deserialize, Serialize};
+use std::convert::Infallible;
 use std::ffi::CStr;
 use std::{fmt, ops};
-use std::convert::Infallible;
-use serde::{Serialize, Deserialize};
-use crate::sys;
 
 pub trait RawConversion {
     type Target;
@@ -16,9 +16,7 @@ impl RawConversion for sys::types::NvAPI_ShortString {
     type Error = Infallible;
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
-        unsafe {
-            Ok(CStr::from_ptr(self.as_ptr()).to_string_lossy().into_owned())
-        }
+        unsafe { Ok(CStr::from_ptr(self.as_ptr()).to_string_lossy().into_owned()) }
     }
 }
 
@@ -457,14 +455,20 @@ impl<T: fmt::Debug> fmt::Debug for Range<T> {
 }
 
 impl<T> Range<T> {
-    pub fn range_from<U>(r: Range<U>) -> Self where T: From<U> {
+    pub fn range_from<U>(r: Range<U>) -> Self
+    where
+        T: From<U>,
+    {
         Range {
             min: r.min.into(),
             max: r.max.into(),
         }
     }
 
-    pub fn from_scalar(v: T) -> Self where T: Clone {
+    pub fn from_scalar(v: T) -> Self
+    where
+        T: Clone,
+    {
         Range {
             min: v.clone(),
             max: v,

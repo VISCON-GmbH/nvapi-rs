@@ -1,6 +1,6 @@
-use std::cmp;
 use std::borrow::Borrow;
-use {i2c, sys, PhysicalGpu};
+use std::cmp;
+use {PhysicalGpu, i2c, sys};
 
 pub struct I2c<G = PhysicalGpu> {
     inner: G,
@@ -46,9 +46,11 @@ impl<G: Borrow<PhysicalGpu>> I2c<G> {
         // TODO: use i2c_read_ex if port_is_ddc is false? docs say it must be true here
         self.inner.borrow().i2c_read(
             self.display_mask,
-            self.port, self.port_is_ddc,
+            self.port,
+            self.port_is_ddc,
             self.address,
-            register, bytes,
+            register,
+            bytes,
             self.speed,
         )
     }
@@ -57,9 +59,11 @@ impl<G: Borrow<PhysicalGpu>> I2c<G> {
         // TODO: use i2c_write_ex if port_is_ddc is false? docs say it must be true here
         self.inner.borrow().i2c_write(
             self.display_mask,
-            self.port, self.port_is_ddc,
+            self.port,
+            self.port_is_ddc,
             self.address,
-            register, bytes,
+            register,
+            bytes,
             self.speed,
         )
     }
@@ -101,8 +105,7 @@ impl<G: Borrow<PhysicalGpu>> i2c::Smbus for I2c<G> {
 
     fn smbus_read_byte(&mut self) -> Result<u8, Self::Error> {
         let mut buf = [0];
-        self.nvapi_read(&[], &mut buf)
-            .map(|_| buf[0])
+        self.nvapi_read(&[], &mut buf).map(|_| buf[0])
     }
 
     fn smbus_write_byte(&mut self, value: u8) -> Result<(), Self::Error> {
@@ -111,8 +114,7 @@ impl<G: Borrow<PhysicalGpu>> i2c::Smbus for I2c<G> {
 
     fn smbus_read_byte_data(&mut self, command: u8) -> Result<u8, Self::Error> {
         let mut buf = [0];
-        self.nvapi_read(&[command], &mut buf)
-            .map(|_| buf[0])
+        self.nvapi_read(&[command], &mut buf).map(|_| buf[0])
     }
 
     fn smbus_write_byte_data(&mut self, command: u8, value: u8) -> Result<(), Self::Error> {
@@ -133,14 +135,17 @@ impl<G: Borrow<PhysicalGpu>> i2c::Smbus for I2c<G> {
         unimplemented!()
     }
 
-    fn smbus_read_block_data(&mut self, command: u8, value: &mut [u8]) -> Result<usize, Self::Error> {
+    fn smbus_read_block_data(
+        &mut self,
+        command: u8,
+        value: &mut [u8],
+    ) -> Result<usize, Self::Error> {
         let mut buf = [0; 33];
-        self.nvapi_read(&[command], &mut buf)
-            .map(|len| {
-                let len = cmp::min(cmp::min(len, buf[0] as usize), value.len());
-                value[..len].copy_from_slice(&buf[1..1 + len]);
-                buf[0] as usize
-            })
+        self.nvapi_read(&[command], &mut buf).map(|len| {
+            let len = cmp::min(cmp::min(len, buf[0] as usize), value.len());
+            value[..len].copy_from_slice(&buf[1..1 + len]);
+            buf[0] as usize
+        })
     }
 
     fn smbus_write_block_data(&mut self, command: u8, value: &[u8]) -> Result<(), Self::Error> {

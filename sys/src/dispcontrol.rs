@@ -1,6 +1,6 @@
-use std::os::raw::c_char;
-use crate::status::NvAPI_Status;
 use crate::handles;
+use crate::status::NvAPI_Status;
+use std::os::raw::c_char;
 
 // Display control enums
 nvenum! {
@@ -53,4 +53,3 @@ nvapi_fn! {
     /// associated with the given display name (such as "\\DISPLAY1").
     pub unsafe fn NvAPI_DISP_GetAssociatedUnAttachedNvidiaDisplayHandle;
 }
-

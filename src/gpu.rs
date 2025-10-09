@@ -1,6 +1,6 @@
 use crate::clock::{ClockDomain, VfpMask};
 use crate::pstate::PState;
-use crate::sys::gpu::{self, clock, cooler, display, power, pstate, thermal};
+use crate::sys::gpu::{self, arch, clock, cooler, display, power, pstate, thermal};
 use crate::sys::{self, driverapi, i2c};
 use crate::thermal::CoolerLevel;
 use crate::types::{
@@ -18,6 +18,7 @@ pub struct PhysicalGpu(sys::handles::NvPhysicalGpuHandle);
 
 unsafe impl Send for PhysicalGpu {}
 
+pub use sys::gpu::arch::{ArchitectureId, ArchitectureImplementationId, ChipRevision};
 pub use sys::gpu::clock::ClockFrequencyType;
 pub use sys::gpu::display::{ConnectedIdsFlags, DisplayIdsFlags, MonitorConnectorType};
 pub use sys::gpu::private::{Foundry, RamMaker, RamType, VendorId as Vendor};
@@ -123,6 +124,15 @@ impl PhysicalGpu {
             ))
             .map(|_| pci)
         }
+    }
+
+    pub fn architecture_info(&self) -> sys::Result<GpuArchitectureInfo> {
+        trace!("gpu.architecture_info()");
+        let mut info = arch::NV_GPU_ARCH_INFO::zeroed();
+        info.version = arch::NV_GPU_ARCH_INFO_VER;
+
+        sys::status_result(unsafe { arch::NvAPI_GPU_GetArchInfo(self.0, &mut info) })
+            .and_then(|_| info.convert_raw().map_err(Into::into))
     }
 
     pub fn board_number(&self) -> sys::Result<[u8; 0x10]> {
@@ -871,12 +881,7 @@ impl PhysicalGpu {
     ) -> sys::Result<usize> {
         trace!(
             "i2c_read({}, {:?}, {:?}, 0x{:02x}, {:?}, {:?})",
-            display_mask,
-            port,
-            port_is_ddc,
-            address,
-            register,
-            speed
+            display_mask, port, port_is_ddc, address, register, speed
         );
         let mut data = i2c::NV_I2C_INFO::zeroed();
         data.version = i2c::NV_I2C_INFO_VER;
@@ -918,12 +923,7 @@ impl PhysicalGpu {
     ) -> sys::Result<()> {
         trace!(
             "i2c_write({}, {:?}, {:?}, 0x{:02x}, {:?}, {:?})",
-            display_mask,
-            port,
-            port_is_ddc,
-            address,
-            register,
-            speed
+            display_mask, port, port_is_ddc, address, register, speed
         );
         let mut data = i2c::NV_I2C_INFO::zeroed();
         data.version = i2c::NV_I2C_INFO_VER;
@@ -965,6 +965,27 @@ impl From<&NV_GSYNC_GPU> for PhysicalGpu {
             true => value.hProxyPhysicalGpu,
         };
         PhysicalGpu(handle)
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+pub struct GpuArchitectureInfo {
+    pub architecture: ArchitectureId,
+    pub implementation: ArchitectureImplementationId,
+    pub revision: ChipRevision,
+}
+
+impl RawConversion for arch::NV_GPU_ARCH_INFO {
+    type Target = GpuArchitectureInfo;
+    type Error = sys::ArgumentRangeError;
+
+    fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
+        Ok(GpuArchitectureInfo {
+            architecture: ArchitectureId::from_raw(self.architecture.raw())?,
+            implementation: ArchitectureImplementationId::from_raw(self.implementation.raw())?,
+            revision: ChipRevision::from_raw(self.revision.raw())?,
+        })
     }
 }
 

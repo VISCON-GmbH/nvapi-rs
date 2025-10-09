@@ -10,8 +10,8 @@ use std::collections::BTreeMap;
 use std::convert::Infallible;
 use std::{iter, slice};
 
-pub use sys::gpu::clock::private::ClockLockMode;
 pub use sys::gpu::clock::PublicClockId as ClockDomain;
+pub use sys::gpu::clock::private::ClockLockMode;
 pub use sys::gpu::power::private::PerfFlags;
 
 impl RawConversion for clock::NV_GPU_CLOCK_FREQUENCIES {

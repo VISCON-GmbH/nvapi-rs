@@ -16,25 +16,33 @@ fn test_mosaic_get_supported_topologies() -> Result<(), String> {
 
     match Mosaic::get_supported_topologies(MosaicTopoType::All) {
         Ok(info) => {
-            println!("get_supported_topologies: Found {} topology briefs and {} display settings", 
-                     info.topoBriefsCount, info.displaySettingsCount);
-            
+            println!(
+                "get_supported_topologies: Found {} topology briefs and {} display settings",
+                info.topoBriefsCount, info.displaySettingsCount
+            );
+
             // Show first few topologies
             let count = std::cmp::min(info.topoBriefsCount as usize, 3);
             for i in 0..count {
                 let brief = &info.topoBriefs[i];
-                println!("  Topology {}: {:?} (possible: {})", 
-                         i, brief.topo, brief.isPossible != 0);
+                println!(
+                    "  Topology {}: {:?} (possible: {})",
+                    i,
+                    brief.topo,
+                    brief.isPossible != 0
+                );
             }
-            
+
             // Show first few display settings
             let settings_count = std::cmp::min(info.displaySettingsCount as usize, 5);
             for i in 0..settings_count {
                 let settings = &info.displaySettings[i];
-                println!("  Display setting {}: {}x{} @ {}Hz ({}bpp)", 
-                         i, settings.width, settings.height, settings.freq, settings.bpp);
+                println!(
+                    "  Display setting {}: {}x{} @ {}Hz ({}bpp)",
+                    i, settings.width, settings.height, settings.freq, settings.bpp
+                );
             }
-            
+
             Ok(())
         }
         Err(e) => Err(format!("get_supported_topologies failed: {:?}", e)),
@@ -52,7 +60,7 @@ fn test_mosaic_get_topology_details() -> Result<(), String> {
         Ok(info) => info,
         Err(e) => return Err(format!("Failed to get supported topologies: {:?}", e)),
     };
-    
+
     if info.topoBriefsCount == 0 {
         println!("get_topology_details: No topologies available to test");
         return Ok(());
@@ -64,8 +72,11 @@ fn test_mosaic_get_topology_details() -> Result<(), String> {
         Ok(details) => {
             println!("get_topology_details: count={}", details.count);
             if details.count > 0 {
-                println!("  First topo validity mask = 0x{:x}", details.topos[0].validityMask);
-                
+                println!(
+                    "  First topo validity mask = 0x{:x}",
+                    details.topos[0].validityMask
+                );
+
                 // Check validity flags
                 let validity = details.topos[0].validityMask;
                 let mut issues = Vec::new();
@@ -78,7 +89,7 @@ fn test_mosaic_get_topology_details() -> Result<(), String> {
                 if validity & nvapi::NV_MOSAIC_TOPO_VALIDITY_MIXED_DISPLAY_TYPES != 0 {
                     issues.push("mixed display types");
                 }
-                
+
                 if issues.is_empty() {
                     println!("  Topology is fully valid");
                 } else {
@@ -102,15 +113,24 @@ fn test_mosaic_get_current_topology() -> Result<(), String> {
             if brief.topo == nvapi::MosaicTopo::None.raw() {
                 println!("get_current_topology: No Mosaic topology is currently active");
             } else {
-                println!("get_current_topology: {:?}, {}x{} @ {}Hz, overlap: {}x{}", 
-                         brief.topo, settings.width, settings.height, 
-                         settings.freq, overlap_x, overlap_y);
+                println!(
+                    "get_current_topology: {:?}, {}x{} @ {}Hz, overlap: {}x{}",
+                    brief.topo,
+                    settings.width,
+                    settings.height,
+                    settings.freq,
+                    overlap_x,
+                    overlap_y
+                );
             }
             Ok(())
         }
         Err(e) => {
             // This is expected if no Mosaic topology is active
-            println!("get_current_topology: {:?} (expected if no Mosaic active)", e);
+            println!(
+                "get_current_topology: {:?} (expected if no Mosaic active)",
+                e
+            );
             Ok(())
         }
     }
@@ -127,7 +147,7 @@ fn test_mosaic_get_overlap_limits() -> Result<(), String> {
         Ok(info) => info,
         Err(e) => return Err(format!("Failed to get supported topologies: {:?}", e)),
     };
-    
+
     if info.topoBriefsCount == 0 || info.displaySettingsCount == 0 {
         println!("get_overlap_limits: No topologies or display settings available to test");
         return Ok(());
@@ -135,10 +155,13 @@ fn test_mosaic_get_overlap_limits() -> Result<(), String> {
 
     let brief = &info.topoBriefs[0];
     let settings = &info.displaySettings[0];
-    
+
     match Mosaic::get_overlap_limits(brief, settings) {
         Ok((min_x, max_x, min_y, max_y)) => {
-            println!("get_overlap_limits: X: {} to {}, Y: {} to {}", min_x, max_x, min_y, max_y);
+            println!(
+                "get_overlap_limits: X: {} to {}, Y: {} to {}",
+                min_x, max_x, min_y, max_y
+            );
             Ok(())
         }
         Err(Status::IncompatibleStructVersion) => {
@@ -159,12 +182,19 @@ fn test_mosaic_enum_display_grids() -> Result<(), String> {
         Ok(grids) => {
             println!("enum_display_grids: Found {} active grids", grids.len());
             for (i, grid) in grids.iter().enumerate() {
-                println!("  Grid {}: {}x{} displays, {}x{} resolution", 
-                         i, grid.rows, grid.columns,
-                         grid.displaySettings.width, grid.displaySettings.height);
-                println!("    {} displays active, flags: 0x{:x}", 
-                         grid.displayCount, grid.gridFlags);
-                
+                println!(
+                    "  Grid {}: {}x{} displays, {}x{} resolution",
+                    i,
+                    grid.rows,
+                    grid.columns,
+                    grid.displaySettings.width,
+                    grid.displaySettings.height
+                );
+                println!(
+                    "    {} displays active, flags: 0x{:x}",
+                    grid.displayCount, grid.gridFlags
+                );
+
                 // Show some flag details
                 if grid.has_flag(nvapi::NV_MOSAIC_GRID_TOPO_FLAG_APPLY_WITH_BEZEL_CORRECT) {
                     println!("    - Bezel correction enabled");
@@ -194,15 +224,22 @@ fn test_mosaic_get_display_viewports() -> Result<(), String> {
 
     match Mosaic::get_display_viewports_by_resolution(0, 1920, 1080) {
         Ok((viewport, bezel_corrected)) => {
-            println!("get_display_viewports: viewport=({}, {}, {}, {}), bezel_corrected={}", 
-                     viewport.left, viewport.top, viewport.right, viewport.bottom, bezel_corrected);
-            println!("  Size: {}x{}", 
-                     viewport.right - viewport.left, 
-                     viewport.bottom - viewport.top);
+            println!(
+                "get_display_viewports: viewport=({}, {}, {}, {}), bezel_corrected={}",
+                viewport.left, viewport.top, viewport.right, viewport.bottom, bezel_corrected
+            );
+            println!(
+                "  Size: {}x{}",
+                viewport.right - viewport.left,
+                viewport.bottom - viewport.top
+            );
             Ok(())
         }
         Err(e) => {
-            println!("get_display_viewports: {:?} (expected for invalid display)", e);
+            println!(
+                "get_display_viewports: {:?} (expected for invalid display)",
+                e
+            );
             Ok(())
         }
     }
@@ -216,7 +253,7 @@ fn test_mosaic_enable_disable_topology() -> Result<(), String> {
     }
 
     println!("enable_disable_topology: Testing safe enable/disable sequence");
-    
+
     // Try to disable current topology
     match Mosaic::enable_current_topology(false) {
         Ok(()) => {
@@ -231,19 +268,21 @@ fn test_mosaic_enable_disable_topology() -> Result<(), String> {
                 Err(e) => Err(format!("Failed to re-enable topology: {:?}", e)),
             }
         }
-        Err(Status::InvalidArgument) | 
-        Err(Status::NvidiaDeviceNotFound) => {
+        Err(Status::InvalidArgument) | Err(Status::NvidiaDeviceNotFound) => {
             println!("  No active topology to disable (this is normal)");
             Ok(())
         }
         Err(e) => {
-            println!("  Enable/disable test failed: {:?} (this may be expected)", e);
+            println!(
+                "  Enable/disable test failed: {:?} (this may be expected)",
+                e
+            );
             Ok(())
         }
     }
 }
 
-#[test] 
+#[test]
 fn test_mosaic_validate_display_grids() -> Result<(), String> {
     if !init() {
         return Err("Failed to initialize NVAPI".into());
@@ -256,8 +295,11 @@ fn test_mosaic_validate_display_grids() -> Result<(), String> {
                 println!("validate_display_grids: No grids to validate");
                 return Ok(());
             }
-            
-            match Mosaic::validate_display_grids(&mut grids, nvapi::NV_MOSAIC_SETDISPLAYTOPO_FLAG_NO_DRIVER_RELOAD) {
+
+            match Mosaic::validate_display_grids(
+                &mut grids,
+                nvapi::NV_MOSAIC_SETDISPLAYTOPO_FLAG_NO_DRIVER_RELOAD,
+            ) {
                 Ok(status) => {
                     println!("validate_display_grids: Validated {} grids", status.len());
                     for (i, grid_status) in status.iter().enumerate() {
@@ -266,7 +308,10 @@ fn test_mosaic_validate_display_grids() -> Result<(), String> {
                             for j in 0..(grid_status.displayCount as usize) {
                                 let disp_status = &grid_status.displays[j];
                                 if disp_status.warningFlags != 0 {
-                                    println!("    Display {}: warnings=0x{:x}", j, disp_status.warningFlags);
+                                    println!(
+                                        "    Display {}: warnings=0x{:x}",
+                                        j, disp_status.warningFlags
+                                    );
                                 }
                             }
                         }
@@ -284,7 +329,10 @@ fn test_mosaic_validate_display_grids() -> Result<(), String> {
             Ok(())
         }
         Err(e) => {
-            println!("validate_display_grids: Failed to get grids for validation: {:?}", e);
+            println!(
+                "validate_display_grids: Failed to get grids for validation: {:?}",
+                e
+            );
             Ok(())
         }
     }
@@ -313,12 +361,16 @@ fn test_mosaic_comprehensive_workflow() -> Result<(), String> {
             let brief = &info.topoBriefs[i];
             match Mosaic::get_topology_details(brief) {
                 Ok(details) => {
-                    println!("  Step 2.{}: Topology {:?} has {} details", 
-                             i, brief.topo, details.count);
+                    println!(
+                        "  Step 2.{}: Topology {:?} has {} details",
+                        i, brief.topo, details.count
+                    );
                 }
                 Err(e) => {
-                    println!("  Step 2.{}: Failed to get details for topology {:?}: {:?}", 
-                             i, brief.topo, e);
+                    println!(
+                        "  Step 2.{}: Failed to get details for topology {:?}: {:?}",
+                        i, brief.topo, e
+                    );
                 }
             }
         }
@@ -329,8 +381,10 @@ fn test_mosaic_comprehensive_workflow() -> Result<(), String> {
     // 3. Check current configuration
     match Mosaic::get_current_topology() {
         Ok((brief, settings, _)) => {
-            println!("  Step 3: Current topology is {:?} at {}x{}", 
-                     brief.topo, settings.width, settings.height);
+            println!(
+                "  Step 3: Current topology is {:?} at {}x{}",
+                brief.topo, settings.width, settings.height
+            );
         }
         Err(e) => {
             println!("  Step 3: No current topology: {:?}", e);

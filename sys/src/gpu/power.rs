@@ -1,7 +1,7 @@
 /// Undocumented API
 pub mod private {
-    use crate::status::NvAPI_Status;
     use crate::handles::NvPhysicalGpuHandle;
+    use crate::status::NvAPI_Status;
 
     nvstruct! {
         pub struct NV_GPU_CLIENT_VOLT_RAILS_STATUS_V1 {
@@ -59,7 +59,8 @@ pub mod private {
     }
 
     // no real difference here
-    pub type NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_MEM_ENTRY = NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_GPU_ENTRY;
+    pub type NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_MEM_ENTRY =
+        NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_GPU_ENTRY;
     /*nvstruct! {
         pub struct NV_GPU_CLOCK_CLIENT_CLK_VF_POINTS_STATUS_MEM_ENTRY {
             pub a: u32, // 1 for idle values?

@@ -1,5 +1,5 @@
-use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::status::NvAPI_Status;
 
 pub const NVAPI_MAX_SIZEOF_I2C_DATA_BUFFER: usize = 4096;
 pub const NVAPI_MAX_SIZEOF_I2C_REG_ADDRESS: usize = 4;
@@ -208,9 +208,9 @@ nvapi_fn! {
 
 /// Undocumented API
 pub mod private {
-    use crate::status::NvAPI_Status;
-    use crate::handles::NvPhysicalGpuHandle;
     use super::NV_I2C_SPEED;
+    use crate::handles::NvPhysicalGpuHandle;
+    use crate::status::NvAPI_Status;
 
     nvstruct! {
         /// Used in NvAPI_I2CRead() and NvAPI_I2CWrite()
@@ -251,7 +251,8 @@ pub mod private {
     }
 
     #[cfg(target_pointer_width = "64")]
-    const NV_I2C_INFO_EX_V3_SIZE: usize = 4 * 2 + (1 * 2) + 6 + 8 + 4 + 4 + 8 + 4 * 3 + 1 + 3 + 4 + 4;
+    const NV_I2C_INFO_EX_V3_SIZE: usize =
+        4 * 2 + (1 * 2) + 6 + 8 + 4 + 4 + 8 + 4 * 3 + 1 + 3 + 4 + 4;
     #[cfg(target_pointer_width = "32")]
     const NV_I2C_INFO_EX_V3_SIZE: usize = 4 * 2 + (1 * 2) + 2 + 4 + 4 + 4 + 4 * 3 + 1 + 3 + 4;
 

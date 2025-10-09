@@ -4,11 +4,11 @@
 //! handle to enumerate G-SYNC modules present in the system and to query
 //! their synchronization status for a given GPU.
 
-use crate::sys::gsync::{self};
 use crate::PhysicalGpu;
+use crate::sys::gsync::{self};
 use log::trace;
 use nvapi_sys::handles::NvGSyncDeviceHandle;
-use nvapi_sys::{handles, status_result, NVAPI_MAX_GSYNC_DEVICES};
+use nvapi_sys::{NVAPI_MAX_GSYNC_DEVICES, handles, status_result};
 
 /// A handle to an NVIDIA G-SYNC device.
 ///
@@ -115,8 +115,7 @@ impl GSyncDevice {
 
         trace!(
             "gsync.get_topology() [fill] {} gpus, {} displays",
-            gpu_count,
-            disp_count
+            gpu_count, disp_count
         );
         unsafe {
             status_result(gsync::NvAPI_GSync_GetTopology(
@@ -296,7 +295,7 @@ impl GSyncDevice {
     // }
 
     /// Re-applies the current sync state using a displays slice from get_topology().
-    /// Useful for a no-op validation of NvAPI_GSync_SetSyncStateSettings or resyncing after reboots, 
+    /// Useful for a no-op validation of NvAPI_GSync_SetSyncStateSettings or resyncing after reboots,
     /// as that sometimes clears the saved sync state.
     pub fn set_sync_state_settings_from_topology(
         &self,

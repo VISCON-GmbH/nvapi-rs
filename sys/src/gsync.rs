@@ -191,7 +191,7 @@ const NV_GSYNC_STATUS_PARAMS_V2_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATU
 
 // Default to V1 for broader compatibility. Some cards/drivers/sync boards return
 // NVAPI_INCOMPATIBLE_STRUCT_VERSION for V2.
-// TODO: Tested with 2x Quadro P4000 and Quadro Sync 2 with older Firmware (2.02). 
+// TODO: Tested with 2x Quadro P4000 and Quadro Sync 2 with older Firmware (2.02).
 // Investigate if newer GPUs and Q Sync firmware works with either version.
 pub type NV_GSYNC_STATUS_PARAMS = NV_GSYNC_STATUS_PARAMS_V1;
 
