@@ -969,7 +969,7 @@ impl From<&NV_GSYNC_GPU> for PhysicalGpu {
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 pub struct GpuArchitectureInfo {
     pub architecture: ArchitectureId,
     pub implementation: ArchitectureImplementationId,
@@ -986,6 +986,52 @@ impl RawConversion for arch::NV_GPU_ARCH_INFO {
             implementation: ArchitectureImplementationId::from_raw(self.implementation.raw())?,
             revision: ChipRevision::from_raw(self.revision.raw())?,
         })
+    }
+}
+
+impl fmt::Debug for GpuArchitectureInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        struct NamedId<'a> {
+            name: Option<&'a str>,
+            raw: u32,
+        }
+
+        impl<'a> fmt::Debug for NamedId<'a> {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                match self.name {
+                    Some(name) => write!(f, "{} (0x{:08x})", name, self.raw),
+                    None => write!(f, "0x{:08x}", self.raw),
+                }
+            }
+        }
+
+        let arch_name = self.architecture.name();
+        let impl_name = self.implementation.name_for_arch(self.architecture);
+        let rev_name = self.revision.name();
+
+        f.debug_struct("GpuArchitectureInfo")
+            .field(
+                "architecture",
+                &NamedId {
+                    name: arch_name,
+                    raw: self.architecture.raw(),
+                },
+            )
+            .field(
+                "implementation",
+                &NamedId {
+                    name: impl_name,
+                    raw: self.implementation.raw(),
+                },
+            )
+            .field(
+                "revision",
+                &NamedId {
+                    name: rev_name,
+                    raw: self.revision.raw(),
+                },
+            )
+            .finish()
     }
 }
 
