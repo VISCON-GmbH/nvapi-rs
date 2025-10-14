@@ -6,15 +6,15 @@ mod gpu;
 pub use gpu::*;
 
 pub use nvapi::{
-    Status, Result,
-    sys,
-    initialize, unload, driver_version, interface_version, error_message
+    driver_version, error_message, initialize, interface_version, sys, unload, Result, Status,
 };
 
 pub fn allowable_result_fallback<T>(v: nvapi::Result<T>, fallback: T) -> nvapi::Result<T> {
     match v {
         Ok(v) => Ok(v),
-        Err(Status::NotSupported) | Err(Status::NoImplementation) | Err(Status::ArgumentExceedMaxSize) => Ok(fallback),
+        Err(Status::NotSupported)
+        | Err(Status::NoImplementation)
+        | Err(Status::ArgumentExceedMaxSize) => Ok(fallback),
         Err(e) => Err(e),
     }
 }

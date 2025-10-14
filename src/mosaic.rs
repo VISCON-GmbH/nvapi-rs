@@ -8,7 +8,7 @@
 
 use crate::sys::mosaic::{self};
 use log::trace;
-use nvapi_sys::{status_result};
+use nvapi_sys::status_result;
 
 pub use crate::sys::mosaic::*;
 
@@ -116,8 +116,11 @@ impl Mosaic {
         let mut brief_copy = *brief;
 
         unsafe {
-            status_result(mosaic::NvAPI_Mosaic_GetTopoGroup(&mut brief_copy, &mut group))
-                .map(|_| group)
+            status_result(mosaic::NvAPI_Mosaic_GetTopoGroup(
+                &mut brief_copy,
+                &mut group,
+            ))
+            .map(|_| group)
         }
     }
 
@@ -159,10 +162,10 @@ impl Mosaic {
         trace!("mosaic.get_current_topology()");
         let mut brief = mosaic::NV_MOSAIC_TOPO_BRIEF::zeroed();
         brief.version = mosaic::NVAPI_MOSAIC_TOPO_BRIEF_VER;
-        
+
         let mut settings = mosaic::NV_MOSAIC_DISPLAY_SETTING::zeroed();
         settings.version = mosaic::NVAPI_MOSAIC_DISPLAY_SETTING_VER;
-        
+
         let mut overlap_x: i32 = 0;
         let mut overlap_y: i32 = 0;
 
@@ -216,10 +219,7 @@ impl Mosaic {
     ) -> crate::Result<()> {
         trace!(
             "mosaic.set_current_topology({:?}, overlap={}x{}, enable={})",
-            brief.topo,
-            overlap_x,
-            overlap_y,
-            enable
+            brief.topo, overlap_x, overlap_y, enable
         );
 
         // Create mutable copies since the API expects mutable pointers
@@ -313,7 +313,7 @@ impl Mosaic {
         settings: &mosaic::NV_MOSAIC_DISPLAY_SETTING,
     ) -> crate::Result<(i32, i32, i32, i32)> {
         trace!("mosaic.get_overlap_limits({:?})", brief.topo);
-        
+
         let mut brief_copy = *brief;
         let mut settings_copy = *settings;
         let mut min_x: i32 = 0;
@@ -340,7 +340,7 @@ impl Mosaic {
     /// Panoramic, and single display configurations. This is useful for getting
     /// the current state of all display arrangements.
     ///
-    /// Note: This function tries V2 first, then falls back to V1 if there's a struct 
+    /// Note: This function tries V2 first, then falls back to V1 if there's a struct
     /// version incompatibility. Some driver/hardware combinations may not support
     /// grid enumeration.
     ///
@@ -376,7 +376,7 @@ impl Mosaic {
     /// Internal helper for V2 grid enumeration.
     fn enum_display_grids_v2() -> crate::Result<Vec<mosaic::NV_MOSAIC_GRID_TOPO>> {
         trace!("mosaic.enum_display_grids_v2() [count]");
-        
+
         // First call to get count
         let mut count: u32 = 0;
         unsafe {
@@ -391,7 +391,7 @@ impl Mosaic {
         }
 
         trace!("mosaic.enum_display_grids_v2() [fill] count={}", count);
-        
+
         // Second call to fill the array
         let mut grids = Vec::with_capacity(count as usize);
         for _ in 0..count {
@@ -405,7 +405,7 @@ impl Mosaic {
                 grids.as_mut_ptr(),
                 &mut count,
             ))?;
-            
+
             // NVAPI may return fewer grids than initially reported
             grids.set_len(count as usize);
         }
@@ -416,7 +416,7 @@ impl Mosaic {
     /// Internal helper for V1 grid enumeration.
     fn enum_display_grids_v1() -> crate::Result<Vec<mosaic::NV_MOSAIC_GRID_TOPO>> {
         trace!("mosaic.enum_display_grids_v1() [count]");
-        
+
         // First call to get count
         let mut count: u32 = 0;
         unsafe {
@@ -431,7 +431,7 @@ impl Mosaic {
         }
 
         trace!("mosaic.enum_display_grids_v1() [fill] count={}", count);
-        
+
         // Second call to fill the array - use V1 structs
         let mut grids_v1 = Vec::with_capacity(count as usize);
         for _ in 0..count {
@@ -445,7 +445,7 @@ impl Mosaic {
                 grids_v1.as_mut_ptr() as *mut mosaic::NV_MOSAIC_GRID_TOPO,
                 &mut count,
             ))?;
-            
+
             // NVAPI may return fewer grids than initially reported
             grids_v1.set_len(count as usize);
         }
@@ -460,7 +460,7 @@ impl Mosaic {
             grid_v2.displayCount = grid_v1.displayCount;
             grid_v2.gridFlags = grid_v1.gridFlags;
             grid_v2.displaySettings = grid_v1.displaySettings;
-            
+
             // Convert V1 displays to V2 displays
             for i in 0..mosaic::NV_MOSAIC_MAX_DISPLAYS {
                 let mut disp_v2 = mosaic::NV_MOSAIC_GRID_TOPO_DISPLAY_V2::zeroed();
@@ -472,10 +472,10 @@ impl Mosaic {
                 disp_v2.cloneGroup = grid_v1.displays[i].cloneGroup;
                 // pixelShiftType is new in V2, default to None
                 disp_v2.pixelShiftType = mosaic::PixelShiftType::NoPixelShift.raw();
-                
+
                 grid_v2.displays[i] = disp_v2;
             }
-            
+
             grids_v2.push(grid_v2);
         }
 
@@ -638,8 +638,8 @@ impl Mosaic {
     ///
     /// // Get viewport for 4K resolution on display 0
     /// let (viewport, bezel_corrected) = Mosaic::get_display_viewports_by_resolution(0, 3840, 2160)?;
-    /// println!("Viewport: {}x{} at ({}, {})", 
-    ///          viewport.right - viewport.left, 
+    /// println!("Viewport: {}x{} at ({}, {})",
+    ///          viewport.right - viewport.left,
     ///          viewport.bottom - viewport.top,
     ///          viewport.left, viewport.top);
     /// println!("Bezel corrected: {}", bezel_corrected);
@@ -652,9 +652,7 @@ impl Mosaic {
     ) -> crate::Result<(crate::sys::types::NV_RECT, bool)> {
         trace!(
             "mosaic.get_display_viewports_by_resolution(display={}, {}x{})",
-            display_id,
-            src_width,
-            src_height
+            display_id, src_width, src_height
         );
 
         let mut viewport = crate::sys::types::NV_RECT::zeroed();

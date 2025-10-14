@@ -1,7 +1,7 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::os::raw::c_void;
-use crate::status::{Status, NvAPI_Status};
+use crate::status::{NvAPI_Status, Status};
 use crate::types;
+use std::os::raw::c_void;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 pub type QueryInterfaceFn = extern "C" fn(id: u32) -> *const c_void;
 
@@ -24,9 +24,9 @@ pub unsafe fn set_query_interface(ptr: QueryInterfaceFn) {
 // (many functions are not there, like it's impossible to identify physical handle by pci slot etc)
 #[cfg(target_os = "linux")]
 pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
-    use libc::{ dlopen, dlsym };
-    use std::os::raw::{ c_char, c_int};
+    use libc::{dlopen, dlsym};
     use std::mem;
+    use std::os::raw::{c_char, c_int};
 
     const RTLD_LAZY: c_int = 0x00001;
     const RTLD_LOCAL: c_int = 0;
@@ -34,7 +34,10 @@ pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
     unsafe {
         let ptr = match QUERY_INTERFACE_CACHE.load(Ordering::Relaxed) {
             0 => {
-                let lib = dlopen(LIBRARY_NAME.as_ptr() as *const c_char,RTLD_LAZY | RTLD_LOCAL);
+                let lib = dlopen(
+                    LIBRARY_NAME.as_ptr() as *const c_char,
+                    RTLD_LAZY | RTLD_LOCAL,
+                );
                 if lib.is_null() {
                     Err(Status::LibraryNotFound)
                 } else {
@@ -46,7 +49,7 @@ pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
                         Ok(ptr as usize)
                     }
                 }
-            },
+            }
             ptr => Ok(ptr),
         }?;
 
@@ -63,13 +66,11 @@ pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
     Err(Status::LibraryNotFound)
 }
 
-
-
 #[cfg(target_os = "windows")]
 pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
-    use winapi::um::libloaderapi::{GetProcAddress, LoadLibraryA};
     use std::mem;
     use std::os::raw::c_char;
+    use winapi::um::libloaderapi::{GetProcAddress, LoadLibraryA};
 
     unsafe {
         let ptr = match QUERY_INTERFACE_CACHE.load(Ordering::Relaxed) {
@@ -86,7 +87,7 @@ pub fn nvapi_QueryInterface(id: u32) -> crate::Result<usize> {
                         Ok(ptr as usize)
                     }
                 }
-            },
+            }
             ptr => Ok(ptr),
         }?;
 
@@ -103,7 +104,7 @@ pub(crate) fn query_interface(id: u32, cache: &AtomicUsize) -> crate::Result<usi
             let value = nvapi_QueryInterface(id)?;
             cache.store(value, Ordering::Relaxed);
             Ok(value)
-        },
+        }
         value => Ok(value),
     }
 }
@@ -154,4 +155,3 @@ nvapi_fn! {
     /// The contents of the string are human readable.  Do not assume a fixed format.
     pub unsafe fn NvAPI_GetInterfaceVersionString;
 }
-

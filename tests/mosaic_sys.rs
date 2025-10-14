@@ -325,10 +325,8 @@ fn test_mosaic_enum_display_grids() -> Result<(), String> {
                 }
 
                 let mut count_actual = count;
-                let status = m::NvAPI_Mosaic_EnumDisplayGrids(
-                    grids.as_mut_ptr(),
-                    &mut count_actual,
-                );
+                let status =
+                    m::NvAPI_Mosaic_EnumDisplayGrids(grids.as_mut_ptr(), &mut count_actual);
                 match status_result(status) {
                     Ok(()) => {
                         println!("EnumDisplayGrids succeeded: count={}", count_actual);
@@ -357,8 +355,11 @@ fn test_mosaic_validate_display_grids() -> Result<(), String> {
     unsafe {
         // Enumerate current grids and validate the first one (if any)
         let mut count: u32 = 0;
-        status_result(m::NvAPI_Mosaic_EnumDisplayGrids(std::ptr::null_mut(), &mut count))
-            .map_err(|e| format!("{:?}", e))?;
+        status_result(m::NvAPI_Mosaic_EnumDisplayGrids(
+            std::ptr::null_mut(),
+            &mut count,
+        ))
+        .map_err(|e| format!("{:?}", e))?;
 
         if count == 0 {
             println!("No grids to validate");
@@ -455,8 +456,6 @@ fn test_legacy_get_current_mosaic_topology() -> Result<(), String> {
         }
     }
 }
-
-
 
 #[test]
 fn test_driver_version_info() -> Result<(), String> {

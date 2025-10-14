@@ -3,26 +3,27 @@
 
 pub use nvapi_sys as sys;
 
-mod types;
-mod pstate;
 mod clock;
-mod thermal;
+#[path = "gpu/mod.rs"]
 mod gpu;
 mod gsync;
-mod mosaic;
-mod info;
 #[cfg(feature = "i2c")]
 mod i2c_impl;
+mod info;
+mod mosaic;
+mod pstate;
+mod thermal;
+mod types;
 
-pub use types::*;
-pub use pstate::*;
 pub use clock::*;
-pub use thermal::*;
 pub use gpu::*;
-pub use info::*;
 pub use gsync::*;
-pub use mosaic::*;
 #[cfg(feature = "i2c")]
 pub use i2c_impl::*;
+pub use info::*;
+pub use mosaic::*;
+pub use pstate::*;
+pub use thermal::*;
+pub use types::*;
 
-pub use sys::{Status, Result};
+pub use sys::{Result, Status};

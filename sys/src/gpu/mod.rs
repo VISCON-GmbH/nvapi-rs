@@ -1,5 +1,5 @@
-use crate::status::NvAPI_Status;
 use crate::handles::NvPhysicalGpuHandle;
+use crate::status::NvAPI_Status;
 use crate::types;
 
 /// The GPU cooler APIs are used to get and set the fan level or equivalent
@@ -33,6 +33,8 @@ pub mod thermal;
 pub mod power;
 
 pub mod display;
+
+pub mod arch;
 
 nvapi_fn! {
     pub type EnumPhysicalGPUsFn = extern "C" fn(nvGPUHandle: *mut [NvPhysicalGpuHandle; types::NVAPI_MAX_PHYSICAL_GPUS], pGpuCount: *mut u32) -> NvAPI_Status;
@@ -164,8 +166,8 @@ nvapi_fn! {
 
 /// Undocumented API
 pub mod private {
-    use crate::status::NvAPI_Status;
     use crate::handles::NvPhysicalGpuHandle;
+    use crate::status::NvAPI_Status;
     use crate::types;
 
     pub const NVAPI_MAX_PROCESSES: usize = 128;
@@ -203,7 +205,6 @@ pub mod private {
         /// Undocumented function.
         pub unsafe fn NvAPI_GPU_GetRamType;
     }
-
 
     nvenum! {
         /// Undocumented function NvAPI_GPU_GetRamMaker()

@@ -1,10 +1,12 @@
-use log::trace;
-use crate::sys::gpu::{thermal, cooler};
 use crate::sys;
-use crate::types::{Percentage, Celsius, CelsiusShifted, Range, RawConversion};
+use crate::sys::gpu::{cooler, thermal};
+use crate::types::{Celsius, CelsiusShifted, Percentage, Range, RawConversion};
+use log::trace;
+use serde::{Deserialize, Serialize};
 
 pub use sys::gpu::thermal::{ThermalController, ThermalTarget};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct Sensor {
     pub controller: ThermalController,
@@ -37,10 +39,14 @@ impl RawConversion for thermal::NV_GPU_THERMAL_SETTINGS {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.sensor[..self.count as usize].iter().map(RawConversion::convert_raw).collect()
+        self.sensor[..self.count as usize]
+            .iter()
+            .map(RawConversion::convert_raw)
+            .collect()
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct ThermalInfo {
     pub controller: ThermalController,
@@ -75,13 +81,15 @@ impl RawConversion for thermal::private::NV_GPU_THERMAL_INFO {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.entries[..self.count as usize].iter()
+        self.entries[..self.count as usize]
+            .iter()
             .map(RawConversion::convert_raw)
             .collect::<Result<_, _>>()
             .map(|t| (self.flags as _, t))
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct ThermalLimit {
     pub controller: ThermalController,
@@ -109,14 +117,18 @@ impl RawConversion for thermal::private::NV_GPU_CLIENT_THERMAL_POLICIES_STATUS {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.entries[..self.flags as usize].iter()
+        self.entries[..self.flags as usize]
+            .iter()
             .map(RawConversion::convert_raw)
             .collect::<Result<_, _>>()
     }
 }
 
-pub use sys::gpu::cooler::private::{CoolerType, CoolerController, CoolerPolicy, CoolerTarget, CoolerControl};
+pub use sys::gpu::cooler::private::{
+    CoolerControl, CoolerController, CoolerPolicy, CoolerTarget, CoolerType,
+};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct Cooler {
     pub kind: CoolerType,
@@ -164,10 +176,14 @@ impl RawConversion for cooler::private::NV_GPU_COOLER_SETTINGS {
 
     fn convert_raw(&self) -> Result<Self::Target, Self::Error> {
         trace!("convert_raw({:#?})", self);
-        self.cooler[..self.count as usize].iter().map(RawConversion::convert_raw).collect()
+        self.cooler[..self.count as usize]
+            .iter()
+            .map(RawConversion::convert_raw)
+            .collect()
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct CoolerLevel {
     pub level: Percentage,
@@ -197,6 +213,7 @@ impl RawConversion for cooler::private::NV_GPU_SETCOOLER_LEVEL {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Copy, Clone)]
 pub struct CoolerPolicyLevel {
     pub level_id: u32,
@@ -218,6 +235,7 @@ impl RawConversion for cooler::private::NV_GPU_COOLER_POLICY_LEVEL {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct CoolerPolicyTable {
     pub policy: CoolerPolicy,
@@ -232,7 +250,11 @@ impl RawConversion for cooler::private::NV_GPU_COOLER_POLICY_TABLE {
         trace!("convert_raw({:#?})", self);
         Ok(CoolerPolicyTable {
             policy: CoolerPolicy::from_raw(self.policy)?,
-            levels: self.policyCoolerLevel.iter().map(RawConversion::convert_raw).collect::<Result<_, _>>()?,
+            levels: self
+                .policyCoolerLevel
+                .iter()
+                .map(RawConversion::convert_raw)
+                .collect::<Result<_, _>>()?,
         })
     }
 }

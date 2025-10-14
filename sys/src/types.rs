@@ -1,5 +1,5 @@
-use std::os::raw::c_char;
 use std::mem::size_of;
+use std::os::raw::c_char;
 
 pub type NvBool = u8;
 

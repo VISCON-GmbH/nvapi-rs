@@ -4,8 +4,8 @@
 #[macro_use]
 mod macros;
 
-pub mod nvid;
 pub mod nvapi;
+pub mod nvid;
 pub mod status;
 pub mod types;
 
@@ -29,7 +29,7 @@ pub mod gpu;
 /// These APIs allow I2C access only to DDC monitors
 pub mod i2c;
 
-/// G-SYNC APIs for querying and configuring G-SYNC capable displays and GPUs. 
+/// G-SYNC APIs for querying and configuring G-SYNC capable displays and GPUs.
 /// This handles the professional G-SYNC achieved with sync cards like the Quadro Sync II (now called RTX PRO Sync).
 pub mod gsync;
 
@@ -41,13 +41,13 @@ pub mod dx;
 
 pub mod dispcontrol;
 
-pub use nvid::Api;
 pub use nvapi::nvapi_QueryInterface;
-pub use types::*;
+pub use nvid::Api;
 pub use status::{NvAPI_Status, Status};
+pub use types::*;
 
-use std::result;
 use std::convert::Infallible;
+use std::result;
 
 /// The result of a fallible NVAPI call.
 pub type Result<T> = result::Result<T, Status>;
@@ -72,7 +72,7 @@ impl From<ArgumentRangeError> for Status {
 
 impl From<Infallible> for ArgumentRangeError {
     fn from(e: Infallible) -> Self {
-        match e { }
+        match e {}
     }
 }
 
