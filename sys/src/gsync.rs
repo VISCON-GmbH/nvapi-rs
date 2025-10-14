@@ -68,7 +68,7 @@ nvstruct! {
     pub connector: NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR,
     pub hProxyPhysicalGpu: NvPhysicalGpuHandle,
     // C bitfield: isSynced:1, reserved:31 — represented as a single u32
-    isSynced: u32,
+    pub isSynced: u32,
     }
 }
 

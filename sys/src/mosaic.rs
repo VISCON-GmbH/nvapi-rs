@@ -226,7 +226,7 @@ nvstruct! {
     pub struct _NV_MOSAIC_SUPPORTED_TOPO_INFO_V2 {
         pub version: u32,
         pub topoBriefsCount: u32,
-    pub topoBriefs: [NV_MOSAIC_TOPO_BRIEF; NV_MOSAIC_TOPO_BRIEFS_MAX],
+        pub topoBriefs: [NV_MOSAIC_TOPO_BRIEF; NV_MOSAIC_TOPO_BRIEFS_MAX],
         pub displaySettingsCount: u32,
         pub displaySettings: [NV_MOSAIC_DISPLAY_SETTING_V2; NV_MOSAIC_DISPLAY_SETTINGS_MAX],
     }
