@@ -21,6 +21,8 @@ pub struct GSyncDevice {
     handle: NvGSyncDeviceHandle,
 }
 
+unsafe impl Send for GSyncDevice {}
+
 impl GSyncDevice {
     /// Creates a new wrapper from a raw NVAPI G-SYNC device handle.
     ///
