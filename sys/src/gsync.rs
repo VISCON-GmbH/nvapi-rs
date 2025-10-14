@@ -5,9 +5,9 @@ use crate::NvAPI_Status;
 nvstruct! {
     pub struct NV_GSYNC_CAPABILITIES_V1 {
     pub version: u32,
-        boardId: u32,
-        revision: u32,
-        pub capFlags: u32,
+    pub boardId: u32,
+    pub revision: u32,
+    pub capFlags: u32,
     }
 }
 
@@ -16,7 +16,7 @@ const NV_GSYNC_CAPABILITIES_V1_SIZE: usize = 4 * 4;
 nvstruct! {
     pub struct NV_GSYNC_CAPABILITIES_V2 {
     pub v1: NV_GSYNC_CAPABILITIES_V1,
-        extendedRevision: u32,
+    pub extendedRevision: u32,
     }
 }
 
@@ -65,7 +65,7 @@ nvstruct! {
     pub struct NV_GSYNC_GPU {
     pub version: u32,
     pub hPhysicalGpu: NvPhysicalGpuHandle,
-        connector: NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR,
+    pub connector: NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR,
     pub hProxyPhysicalGpu: NvPhysicalGpuHandle,
     // C bitfield: isSynced:1, reserved:31 — represented as a single u32
     isSynced: u32,
@@ -105,8 +105,8 @@ nvstruct! {
         pub version: u32,
         pub numLines: u32,
         pub numPixels: u32,
-        maxLines: u32,
-        minPixels: u32,
+        pub maxLines: u32,
+        pub minPixels: u32,
     }
 }
 
@@ -123,9 +123,9 @@ nvstruct! {
         pub source: NVAPI_GSYNC_SYNC_SOURCE,
         pub interlaceMode: u32,
         pub syncSourceIsOutput: u32,
-        reserved: u32,
-        syncSkew: NV_GSYNC_DELAY,
-        startupDelay: NV_GSYNC_DELAY,
+        pub reserved: u32,
+        pub syncSkew: NV_GSYNC_DELAY,
+        pub startupDelay: NV_GSYNC_DELAY,
     }
 }
 
@@ -168,9 +168,9 @@ nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V1 {
     pub version: u32,
          pub refreshRate: u32,
-         RJ45_IO: [NVAPI_GSYNC_RJ45_IO; NVAPI_MAX_RJ45_PER_GSYNC],
-         RJ45_Ethernet: [u32; NVAPI_MAX_RJ45_PER_GSYNC],
-         houseSyncIncoming: u32,
+         pub RJ45_IO: [NVAPI_GSYNC_RJ45_IO; NVAPI_MAX_RJ45_PER_GSYNC],
+         pub RJ45_Ethernet: [u32; NVAPI_MAX_RJ45_PER_GSYNC],
+         pub houseSyncIncoming: u32,
          pub bHouseSync: u32,
     }
 }
@@ -180,8 +180,8 @@ const NV_GSYNC_STATUS_PARAMS_V1_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATU
 nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V2 {
     pub v1: NV_GSYNC_STATUS_PARAMS_V1,
-        bInternalSlave: u32,
-        reserved: u32,
+    pub bInternalSlave: u32,
+    pub reserved: u32,
     }
 }
 
