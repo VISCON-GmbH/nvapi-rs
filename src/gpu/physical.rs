@@ -862,6 +862,24 @@ impl PhysicalGpu {
         })
     }
 
+    /// Locates the `(gpu_index, display_index)` pair for a `display_id`, using the same
+    /// zero-based `GPU,DISPLAY` numbering scheme as NVIDIA's `configureSync` / Mosaic
+    /// command line tools (e.g. `display=0,1`).
+    ///
+    /// `gpu_index` is the position of the GPU within [`PhysicalGpu::enumerate()`], and
+    /// `display_index` is the position of the display within that GPU's connected
+    /// display list ([`PhysicalGpu::display_ids_connected()`]). Returns `None` if no
+    /// connected display with the given `display_id` was found.
+    pub fn display_gpu_index(display_id: u32) -> sys::Result<Option<(usize, usize)>> {
+        for (gpu_index, gpu) in Self::enumerate()?.into_iter().enumerate() {
+            let displays = gpu.display_ids_connected(ConnectedIdsFlags::empty())?;
+            if let Some(display_index) = displays.iter().position(|d| d.display_id == display_id) {
+                return Ok(Some((gpu_index, display_index)));
+            }
+        }
+        Ok(None)
+    }
+
     pub fn i2c_read(
         &self,
         display_mask: u32,

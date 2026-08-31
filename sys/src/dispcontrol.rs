@@ -53,3 +53,30 @@ nvapi_fn! {
     /// associated with the given display name (such as "\\DISPLAY1").
     pub unsafe fn NvAPI_DISP_GetAssociatedUnAttachedNvidiaDisplayHandle;
 }
+
+nvapi_fn! {
+    pub type DISP_GetDisplayIdByDisplayNameFn = extern "C" fn(displayName: *const c_char, displayId: *mut u32) -> NvAPI_Status;
+
+    /// Retrieves the displayId of a given, currently active display by its GDI
+    /// device name (such as "\\.\DISPLAY1"). In clone/Surround configurations
+    /// the primary or top-left display is returned.
+    ///
+    /// This is the reverse of enumerating a Windows display name to its
+    /// NVAPI displayId; pairing it with `EnumDisplayDevices` lets you map a
+    /// displayId back to the OS display index it corresponds to.
+    pub unsafe fn NvAPI_DISP_GetDisplayIdByDisplayName;
+}
+
+nvapi_fn! {
+    pub type SYS_GetDisplayIdFromGpuAndOutputIdFn = extern "C" fn(hPhysicalGpu: handles::NvPhysicalGpuHandle, outputId: u32, displayId: *mut u32) -> NvAPI_Status;
+
+    /// Converts a physical GPU handle and output ID (a single-bit mask) to a displayId.
+    pub unsafe fn NvAPI_SYS_GetDisplayIdFromGpuAndOutputId;
+}
+
+nvapi_fn! {
+    pub type SYS_GetGpuAndOutputIdFromDisplayIdFn = extern "C" fn(displayId: u32, hPhysicalGpu: *mut handles::NvPhysicalGpuHandle, outputId: *mut u32) -> NvAPI_Status;
+
+    /// Converts a displayId to a physical GPU handle and output ID (a single-bit mask).
+    pub unsafe fn NvAPI_SYS_GetGpuAndOutputIdFromDisplayId;
+}
