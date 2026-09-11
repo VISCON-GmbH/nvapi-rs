@@ -39,6 +39,8 @@ pub mod mosaic;
 #[cfg(windows)]
 pub mod dx;
 
+/// Display control APIs: display handles, display IDs and the global display configuration
+/// (which displays are active, at which mode, position and rotation).
 pub mod dispcontrol;
 
 pub use nvapi::nvapi_QueryInterface;

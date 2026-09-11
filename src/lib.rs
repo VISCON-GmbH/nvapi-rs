@@ -4,6 +4,7 @@
 pub use nvapi_sys as sys;
 
 mod clock;
+mod display;
 #[path = "gpu/mod.rs"]
 mod gpu;
 mod gsync;
@@ -16,6 +17,7 @@ mod thermal;
 mod types;
 
 pub use clock::*;
+pub use display::*;
 pub use gpu::*;
 pub use gsync::*;
 #[cfg(feature = "i2c")]
