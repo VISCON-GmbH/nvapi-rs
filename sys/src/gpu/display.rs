@@ -4,14 +4,14 @@ use crate::status::NvAPI_Status;
 nvenum! {
     pub enum NV_MONITOR_CONN_TYPE / MonitorConnectorType {
         NV_MONITOR_CONN_TYPE_UNINITIALIZED / Uninitialized = 0,
-        NV_MONITOR_CONN_TYPE_VGA / Vga = 2,
-        NV_MONITOR_CONN_TYPE_COMPONENT / Component = 3,
-        NV_MONITOR_CONN_TYPE_SVIDEO / SVideo = 4,
-        NV_MONITOR_CONN_TYPE_HDMI / Hdmi = 5,
-        NV_MONITOR_CONN_TYPE_DVI / Dvi = 6,
-        NV_MONITOR_CONN_TYPE_LVDS / Lvds = 7,
-        NV_MONITOR_CONN_TYPE_DP / DisplayPort = 8,
-        NV_MONITOR_CONN_TYPE_COMPOSITE / Composite = 9,
+        NV_MONITOR_CONN_TYPE_VGA / Vga = 1,
+        NV_MONITOR_CONN_TYPE_COMPONENT / Component = 2,
+        NV_MONITOR_CONN_TYPE_SVIDEO / SVideo = 3,
+        NV_MONITOR_CONN_TYPE_HDMI / Hdmi = 4,
+        NV_MONITOR_CONN_TYPE_DVI / Dvi = 5,
+        NV_MONITOR_CONN_TYPE_LVDS / Lvds = 6,
+        NV_MONITOR_CONN_TYPE_DP / DisplayPort = 7,
+        NV_MONITOR_CONN_TYPE_COMPOSITE / Composite = 8,
         NV_MONITOR_CONN_TYPE_UNKNOWN / Unknown = -1,
     }
 }
