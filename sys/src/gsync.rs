@@ -42,7 +42,7 @@ nvstruct! {
     pub struct NV_GSYNC_DISPLAY {
     pub version: u32,
     pub displayId: u32,
-    // C bitfield: isMasterable:1, reserved:31 — represented as a single u32
+    // C bitfield: isMasterable:1, reserved:31
     pub isMasterable: u32,
     pub syncState: NVAPI_GSYNC_DISPLAY_SYNC_STATE,
     }
@@ -67,7 +67,7 @@ nvstruct! {
     pub hPhysicalGpu: NvPhysicalGpuHandle,
     pub connector: NVAPI_GSYNC_GPU_TOPOLOGY_CONNECTOR,
     pub hProxyPhysicalGpu: NvPhysicalGpuHandle,
-    // C bitfield: isSynced:1, reserved:31 — represented as a single u32
+    // C bitfield: isSynced:1, reserved:31
     pub isSynced: u32,
     }
 }
@@ -121,7 +121,7 @@ nvstruct! {
         pub vmode: NVAPI_GSYNC_VIDEO_MODE,
         pub interval: u32,
         pub source: NVAPI_GSYNC_SYNC_SOURCE,
-        // C bitfield: interlaceMode:1, syncSourceIsOutput:1, reserved:30 — represented as a single u32
+        // C bitfield: interlaceMode:1, syncSourceIsOutput:1, reserved:30
         pub flags: u32,
         pub syncSkew: NV_GSYNC_DELAY,
         pub startupDelay: NV_GSYNC_DELAY,
@@ -235,7 +235,7 @@ const NV_GSYNC_STATUS_PARAMS_V1_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATU
 nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V2 {
     pub v1: NV_GSYNC_STATUS_PARAMS_V1,
-    // C bitfield: bInternalSlave:1, reserved:31 — represented as a single u32
+    // C bitfield: bInternalSlave:1, reserved:31
     pub flags: u32,
     }
 }
