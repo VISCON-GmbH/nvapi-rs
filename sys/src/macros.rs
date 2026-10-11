@@ -191,8 +191,10 @@ macro_rules! nvbits {
             type Item = Self;
 
             fn next(&mut self) -> Option<Self::Item> {
+                // Zero-valued flags (e.g. `NONE`) are always "contained" and removing them
+                // changes nothing, so yielding them would never terminate.
                 $(
-                    if self.contains($enum_name::$name) {
+                    if !$enum_name::$name.is_empty() && self.contains($enum_name::$name) {
                         self.remove($enum_name::$name);
                         Some($enum_name::$name)
                     } else

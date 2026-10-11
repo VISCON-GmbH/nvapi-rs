@@ -115,23 +115,78 @@ const NV_GSYNC_DELAY_SIZE: usize = std::mem::size_of::<NV_GSYNC_DELAY>();
 nvversion! { NV_GSYNC_DELAY_VER(NV_GSYNC_DELAY = NV_GSYNC_DELAY_SIZE, 1) }
 
 nvstruct! {
-    pub struct NV_GSYNC_CONTROL_PARAMS {
-    pub version: u32,
+    pub struct NV_GSYNC_CONTROL_PARAMS_V1 {
+        pub version: u32,
         pub polarity: NVAPI_GSYNC_POLARITY,
         pub vmode: NVAPI_GSYNC_VIDEO_MODE,
         pub interval: u32,
         pub source: NVAPI_GSYNC_SYNC_SOURCE,
-        pub interlaceMode: u32,
-        pub syncSourceIsOutput: u32,
-        pub reserved: u32,
+        // C bitfield: interlaceMode:1, syncSourceIsOutput:1, reserved:30 — represented as a single u32
+        pub flags: u32,
         pub syncSkew: NV_GSYNC_DELAY,
         pub startupDelay: NV_GSYNC_DELAY,
     }
 }
 
-const NV_GSYNC_CONTROL_PARAMS_SIZE: usize = std::mem::size_of::<NV_GSYNC_CONTROL_PARAMS>();
+pub const NV_GSYNC_CONTROL_PARAMS_FLAG_INTERLACE_MODE: u32 = 1 << 0;
+pub const NV_GSYNC_CONTROL_PARAMS_FLAG_SYNC_SOURCE_IS_OUTPUT: u32 = 1 << 1;
 
-nvversion! { NV_GSYNC_CONTROL_PARAMS_VER(NV_GSYNC_CONTROL_PARAMS = NV_GSYNC_CONTROL_PARAMS_SIZE, 0) }
+impl NV_GSYNC_CONTROL_PARAMS_V1 {
+    pub fn interlaceMode(&self) -> bool {
+        self.flags & NV_GSYNC_CONTROL_PARAMS_FLAG_INTERLACE_MODE != 0
+    }
+
+    pub fn set_interlaceMode(&mut self, value: bool) {
+        self.set_flag(NV_GSYNC_CONTROL_PARAMS_FLAG_INTERLACE_MODE, value)
+    }
+
+    pub fn syncSourceIsOutput(&self) -> bool {
+        self.flags & NV_GSYNC_CONTROL_PARAMS_FLAG_SYNC_SOURCE_IS_OUTPUT != 0
+    }
+
+    pub fn set_syncSourceIsOutput(&mut self, value: bool) {
+        self.set_flag(NV_GSYNC_CONTROL_PARAMS_FLAG_SYNC_SOURCE_IS_OUTPUT, value)
+    }
+
+    fn set_flag(&mut self, flag: u32, value: bool) {
+        if value {
+            self.flags |= flag;
+        } else {
+            self.flags &= !flag;
+        }
+    }
+}
+
+const NV_GSYNC_CONTROL_PARAMS_V1_SIZE: usize = std::mem::size_of::<NV_GSYNC_CONTROL_PARAMS_V1>();
+
+nvenum! {
+    pub enum NVAPI_GSYNC_MULTIPLY_DIVIDE_MODE / MultiplyDivideMode {
+        NVAPI_GSYNC_UNDEFINED_MODE / Undefined = 0,
+        NVAPI_GSYNC_MULTIPLY_MODE / Multiply = 1,
+        NVAPI_GSYNC_DIVIDE_MODE / Divide = 2,
+    }
+}
+
+nvstruct! {
+    pub struct NV_GSYNC_CONTROL_PARAMS_V2 {
+        pub v1: NV_GSYNC_CONTROL_PARAMS_V1,
+        /// Multiplier/divider mode for the house sync signal.
+        pub multiplyDivideMode: NVAPI_GSYNC_MULTIPLY_DIVIDE_MODE,
+        /// Multiplier/divider value for the house sync signal. Only supported if
+        /// `NV_GSYNC_CAPABILITIES_V3::bIsMulDivSupported` is set.
+        pub multiplyDivideValue: u8,
+    }
+}
+
+nvinherit! { NV_GSYNC_CONTROL_PARAMS_V2(v1: NV_GSYNC_CONTROL_PARAMS_V1) }
+
+const NV_GSYNC_CONTROL_PARAMS_V2_SIZE: usize = std::mem::size_of::<NV_GSYNC_CONTROL_PARAMS_V2>();
+
+pub type NV_GSYNC_CONTROL_PARAMS = NV_GSYNC_CONTROL_PARAMS_V2;
+
+nvversion! { NV_GSYNC_CONTROL_PARAMS_VER1(NV_GSYNC_CONTROL_PARAMS_V1 = NV_GSYNC_CONTROL_PARAMS_V1_SIZE, 1) }
+nvversion! { NV_GSYNC_CONTROL_PARAMS_VER2(NV_GSYNC_CONTROL_PARAMS_V2 = NV_GSYNC_CONTROL_PARAMS_V2_SIZE, 2) }
+nvversion! { NV_GSYNC_CONTROL_PARAMS_VER = NV_GSYNC_CONTROL_PARAMS_VER2 }
 
 nvenum! {
     pub enum NVAPI_GSYNC_DELAY_TYPE / DelayType {
@@ -180,19 +235,26 @@ const NV_GSYNC_STATUS_PARAMS_V1_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATU
 nvstruct! {
     pub struct NV_GSYNC_STATUS_PARAMS_V2 {
     pub v1: NV_GSYNC_STATUS_PARAMS_V1,
-    pub bInternalSlave: u32,
-    pub reserved: u32,
+    // C bitfield: bInternalSlave:1, reserved:31 — represented as a single u32
+    pub flags: u32,
     }
 }
 
 nvinherit! { NV_GSYNC_STATUS_PARAMS_V2(v1: NV_GSYNC_STATUS_PARAMS_V1) }
 
+impl NV_GSYNC_STATUS_PARAMS_V2 {
+    /// Valid only for P2061 boards.
+    pub fn bInternalSlave(&self) -> bool {
+        self.flags & 1 != 0
+    }
+}
+
 const NV_GSYNC_STATUS_PARAMS_V2_SIZE: usize = std::mem::size_of::<NV_GSYNC_STATUS_PARAMS_V2>();
 
-// Default to V1 for broader compatibility. Some cards/drivers/sync boards return
-// NVAPI_INCOMPATIBLE_STRUCT_VERSION for V2.
-// TODO: Tested with 2x Quadro P4000 and Quadro Sync 2 with older Firmware (2.02).
-// Investigate if newer GPUs and Q Sync firmware works with either version.
+// Default to V1 for broader compatibility. V2 used to return NVAPI_INCOMPATIBLE_STRUCT_VERSION,
+// but its layout was 4 bytes too large at the time (bInternalSlave/reserved were two u32 fields
+// instead of one bitfield), so that result says nothing about driver support.
+// TODO: Re-test V2 with 2x Quadro P4000 and Quadro Sync 2 (firmware 2.02) and newer hardware.
 pub type NV_GSYNC_STATUS_PARAMS = NV_GSYNC_STATUS_PARAMS_V1;
 
 nvversion! { NV_GSYNC_STATUS_PARAMS_VER_1(NV_GSYNC_STATUS_PARAMS_V1 = NV_GSYNC_STATUS_PARAMS_V1_SIZE, 1) }

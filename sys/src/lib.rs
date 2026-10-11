@@ -43,6 +43,9 @@ pub mod dx;
 /// (which displays are active, at which mode, position and rotation).
 pub mod dispcontrol;
 
+#[cfg(test)]
+mod layout_tests;
+
 pub use nvapi::nvapi_QueryInterface;
 pub use nvid::Api;
 pub use status::{NvAPI_Status, Status};

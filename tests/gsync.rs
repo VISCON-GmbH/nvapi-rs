@@ -273,8 +273,8 @@ fn test_gsync_get_control_parameters() -> Result<(), String> {
         "  source={:?}",
         NVAPI_GSYNC_SYNC_SOURCE::from(params.source)
     );
-    println!("  interlaceMode={}", params.interlaceMode);
-    println!("  syncSourceIsOutput={}", params.syncSourceIsOutput);
+    println!("  interlaceMode={}", params.interlaceMode());
+    println!("  syncSourceIsOutput={}", params.syncSourceIsOutput());
 
     Ok(())
 }
